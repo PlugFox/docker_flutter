@@ -14,10 +14,10 @@ sh -c ' \
     --tag plugfox/flutter:beta \
     $PWD \
     && echo "DOCKERFILE BUILD SUCCESSFUL"' \
-     > log.txt \
-     && echo "DOCKERFILE BUILD SUCCESSFUL"
+    > log.txt \
+    && echo "DOCKERFILE BUILD SUCCESSFUL"
 
-
+# Test result
 docker run --rm -it -v ${PWD}:/build --workdir /build plugfox/flutter:stable flutter doctor
 docker run --rm -it -v ${PWD}:/build --workdir /build plugfox/flutter:beta flutter doctor
 #&
