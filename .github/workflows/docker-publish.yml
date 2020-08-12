@@ -5,9 +5,9 @@ on:
     # Publish `master` as Docker `latest` image.
     branches:
       - master
-
-#env:
-#  IMAGE_NAME: image
+  schedule:
+    - cron:  '0 7 * * */1'
+  workflow_dispatch:
 
 jobs:
   # Push image to GitHub Packages.
@@ -22,12 +22,16 @@ jobs:
       - name: Pull debian
         run: docker pull debian:stretch
         
-      - name: Build image
+      - name: Build stable image
         run: docker build . --file Dockerfile --build-arg flutter_version="stable" --tag plugfox/flutter:stable
-
+        
+      - name: Build beta image
+        run: docker build . --file Dockerfile --build-arg flutter_version="beta" --tag plugfox/flutter:beta
+        
       - name: Log into registry
         run: echo "${{ secrets.DOCKER_LOGIN_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_LOGIN_USERNAME }} --password-stdin
 
-      - name: Push image
+      - name: Push images
         run: |
           docker push plugfox/flutter:stable
+          docker push plugfox/flutter:beta
