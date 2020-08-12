@@ -53,6 +53,7 @@ ENV CHROME_EXECUTABLE=/usr/bin/chromium
 # Pub cache dir
 ENV PUB_CACHE="/usr/lib/pub"
 RUN mkdir -p "${PUB_CACHE}"
+ENV PATH="${PATH}:${PUB_CACHE}/bin"
 
 #RUN mkdir -p /root/db
 
