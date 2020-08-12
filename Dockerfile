@@ -1,8 +1,7 @@
 # ------------------------------------------------------
 #                       Dockerfile
 # ------------------------------------------------------
-# image:    flutter:stable
-# name:     plugfox/flutter:stable
+# image:    plugfox/flutter
 # repo:     https://github.com/plugfox/docker_flutter
 # requires: debian:stretch
 # authors:  plugfox@gmail.com
@@ -33,6 +32,7 @@ USER root
 ENV LANG en_US.UTF-8
 WORKDIR /
 
+# Install linux dependency and utils
 RUN apt-get update -y
 RUN apt-get install -y \
   git \
@@ -45,7 +45,8 @@ RUN apt-get install -y \
   default-jdk-headless \
   sqlite3 \
   libsqlite3-dev \
-  chromium
+  chromium \ 
+  firefox-esr
 
 ENV CHROME_EXECUTABLE=/usr/bin/chromium
 

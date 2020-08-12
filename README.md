@@ -20,6 +20,7 @@ Rolling release update strategy.
  + lcov  
  + sqlite3  
  + chromium  
+ + firefox  
   
 ### Dart utils  
  + [stagehand](https://pub.dev/packages/stagehand)  
