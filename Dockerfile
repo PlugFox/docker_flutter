@@ -51,7 +51,7 @@ RUN apt-get install -y \
 ENV CHROME_EXECUTABLE=/usr/bin/chromium
 
 # Pub cache dir
-ENV PUB_CACHE="/tmp/pub"
+ENV PUB_CACHE="/usr/lib/pub"
 RUN mkdir -p "${PUB_CACHE}"
 
 #RUN mkdir -p /root/db
