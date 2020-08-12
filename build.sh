@@ -15,5 +15,9 @@ sh -c ' \
     $PWD \
     && echo "DOCKERFILE BUILD SUCCESSFUL"' \
      > log.txt \
-     && echo "DOCKERFILE BUILD SUCCESSFUL" 
+     && echo "DOCKERFILE BUILD SUCCESSFUL"
+
+
+docker run --rm -it -v ${PWD}:/build --workdir /build plugfox/flutter:stable flutter doctor
+docker run --rm -it -v ${PWD}:/build --workdir /build plugfox/flutter:beta flutter doctor
 #&
