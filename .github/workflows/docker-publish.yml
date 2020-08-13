@@ -1,10 +1,10 @@
 name: Docker
 
 on:
-  push:
-    # Publish `master` as Docker `latest` image.
-    branches:
-      - master
+  # Publish `master` as Docker `latest` image.
+  #push:
+  #  branches:
+  #    - master
   schedule:
     - cron:  '0 7 * * 1'
 
