@@ -4,7 +4,7 @@
   
 Debian Linux image for Flutter & Dart with helpful utils and web build support.  
 Symlinks to dart, flutter and pub cache are in the folder: `/opt`  
-Rolling release update strategy.  
+Rolling release update strategy at every monday.  
   
 ### Env  
  + DART_SDK     = "/usr/lib/dart"  
