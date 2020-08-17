@@ -1,21 +1,13 @@
 name: Docker
 
 on:
-  # Publish `master` as Docker `latest` image.
-  #push:
-  #  branches:
-  #    - master
   schedule:
-  #  - cron:  '0 7 * * 1'
-    - cron: '37 16 * * *'
+    - cron: '0 7 * * 1'
 
 jobs:
-  # Push image to GitHub Packages.
-  # See also https://docs.docker.com/docker-hub/builds/
   push:
     runs-on: ubuntu-latest
-    #if: github.event_name == 'push'
-
+    
     steps:
       - uses: actions/checkout@v2
 
