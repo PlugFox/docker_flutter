@@ -108,6 +108,7 @@ ENV DART_SDK="/usr/lib/dart"
 RUN pub global activate stagehand
 RUN pub global activate grinder
 RUN pub global activate cider
+RUN pub global activate pana
 
 # Symlinks
 RUN ln -s $DART_SDK /opt/dart; ln -s $FLUTTER_HOME /opt/flutter; ln -s $PUB_CACHE /opt/pub; ln -s $ANDROID_TOOLS_ROOT /opt/android_sdk
