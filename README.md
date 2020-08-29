@@ -26,4 +26,5 @@ Rolling release update strategy.
  + [stagehand](https://pub.dev/packages/stagehand)  
  + [grinder](https://pub.dev/packages/grinder)  
  + [cider](https://pub.dev/packages/cider)  
+ + [pana](https://pub.dev/packages/pana)  
   
