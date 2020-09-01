@@ -29,10 +29,21 @@ LABEL dev.plugfox.flutter.name="Debian linux image for Flutter & Dart with helpf
       description="Debian Linux image for Flutter & Dart with helpful utils and web build support."
 
 USER root
-ENV LANG en_US.UTF-8
 WORKDIR /
 
+# Locales
+RUN export LC_ALL=en_US.UTF-8
+RUN export LANG=en_US.UTF-8
+RUN export LANGUAGE=en_US:en
+RUN apt-get clean && apt-get update && apt-get install -y locales
+RUN locale-gen en_US.UTF-8
+RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && locale-gen
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+
 # Install linux dependency and utils
+RUN apt-get clean -y
 RUN apt-get update -y
 RUN apt-get install -y \
   git \
