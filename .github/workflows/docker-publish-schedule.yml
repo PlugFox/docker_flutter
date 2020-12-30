@@ -1,4 +1,4 @@
-name: Docker
+name: Schedule
 
 on:
   schedule:
