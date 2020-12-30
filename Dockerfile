@@ -4,7 +4,7 @@
 # image:    plugfox/flutter
 # repo:     https://github.com/plugfox/docker_flutter
 # requires: debian:stretch
-# authors:  plugfox@gmail.com
+# authors:  plugfox@gmail.com, Maria Melnik
 # license:  MIT
 # ------------------------------------------------------
 
