@@ -27,4 +27,5 @@ Rolling release update strategy at every monday.
  + [grinder](https://pub.dev/packages/grinder)  
  + [cider](https://pub.dev/packages/cider)  
  + [pana](https://pub.dev/packages/pana)  
+ + [dart_code_metrics](https://pub.dev/packages/dart_code_metrics)  
   
