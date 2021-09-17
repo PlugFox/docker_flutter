@@ -11,60 +11,59 @@
 ARG FLUTTER_VERSION="stable"
 ARG FLUTTER_HOME="/opt/flutter"
 ARG PUB_CACHE="/var/tmp/.pub_cache"
+ARG GLIBC_VERSION="2.34-r0"
 
-FROM debian:bullseye-slim as build
+FROM alpine:latest as build
 
 USER root
 
 ARG FLUTTER_VERSION
 ARG FLUTTER_HOME
 ARG PUB_CACHE
+ARG GLIBC_VERSION
 
 WORKDIR /
 
-ENV LANG=en_US.UTF-8 \
-    LC_ALL=en_US.UTF-8 \
-    LANGUAGE=en_US:en \
+ENV GLIBC_VERSION=$GLIBC_VERSION \
     FLUTTER_VERSION=$FLUTTER_VERSION \
     FLUTTER_HOME=$FLUTTER_HOME \
     PUB_CACHE=$PUB_CACHE \
     FLUTTER_ROOT=$FLUTTER_HOME \
     PATH="${PATH}:${FLUTTER_HOME}/bin:${PUB_CACHE}/bin"
 
-# Make base dir if not exists
 # Install linux dependency and utils
-RUN set -eux; mkdir -p /usr/lib /var/tmp /bin $PUB_CACHE \
-    && apt-get clean -y \
-    && apt-get update -y \
-    && apt-get install -y --no-install-recommends \
-                       git curl unzip ca-certificates \
-                       dnsutils openssh-client lib32stdc++6 \
-    # Remove dependencies
-    && apt-get autoremove -y \
-    && apt-get clean -y \
-    # Clean trash
-    && rm -rf /var/lib/apt/lists/* /tmp/*
+RUN set -eux; mkdir -p /usr/lib $PUB_CACHE \
+    && apk --no-cache add bash curl git ca-certificates wget unzip \
+    && wget -q -O /etc/apk/keys/sgerrand.rsa.pub \
+      https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub \
+    && wget -O /usr/lib/glibc-${GLIBC_VERSION}.apk \
+      https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk \
+    && wget -O /usr/lib/glibc-bin-${GLIBC_VERSION}.apk \
+      https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk
+
+    #&& apk --no-cache add glibc-${GLIBC_VERSION}.apk glibc-bin-${GLIBC_VERSION}.apk
 
 # Install & config Flutter
-RUN set -eux; git clone -b ${FLUTTER_VERSION} https://github.com/flutter/flutter.git "${FLUTTER_ROOT}" \
-    && chown -R $(whoami):$(whoami) ${FLUTTER_ROOT} ${PUB_CACHE} \
-    && cd "${FLUTTER_ROOT}" \
-    && git clean -fdx
+RUN set -eux; git clone -b ${FLUTTER_VERSION} https://github.com/flutter/flutter.git "${FLUTTER_ROOT}"
+    #&& chown -R $(whoami):$(whoami) ${FLUTTER_ROOT} ${PUB_CACHE} \
+    #&& cd "${FLUTTER_ROOT}" \
+    #&& git clean -fdx
 
 # Create user & group
-RUN set -eux; groupadd flutter \
-    && useradd -m --home-dir /home/flutter -g flutter flutter \
-    && chown -R flutter:flutter /opt
+RUN set -eux; addgroup -S flutter \
+    && adduser -S flutter -G flutter -h /home \
+    && chown -R flutter:flutter ${FLUTTER_ROOT} ${PUB_CACHE}
 
 # Create system dependencies
 RUN set -eux; for f in \
         /etc/group \
         /etc/passwd \
-        /etc/nsswitch.conf \
         /etc/ssl/certs \
         /usr/share/ca-certificates \
-        /usr/bin/unzip \
-        /usr/bin/git \
+        /usr/lib \
+        /etc/apk/keys \
+        #/etc/nsswitch.conf \
+        #/usr/bin/unzip \
         #/usr/bin/curl \
         #/usr/lib/x86_64-linux-gnu/libcurl.so.4 \
         #/lib/ \
@@ -81,7 +80,7 @@ RUN set -eux; \
     for f in \
         ${FLUTTER_HOME} \
         ${PUB_CACHE} \
-        /home/flutter \
+        /home \
     ; do \
         dir="$(dirname "$f")"; \
         mkdir -p "/build_flutter_dependencies$dir"; \
@@ -90,30 +89,33 @@ RUN set -eux; \
 
 # Create new clear layer
 #FROM scratch as production
-FROM debian:bullseye-slim as production
+#FROM debian:bullseye-slim as production
 #FROM gcr.io/distroless/base as production
+FROM alpine:latest as production
 
 ARG FLUTTER_VERSION
-ARG ANDROID_HOME
 ARG FLUTTER_HOME
 ARG PUB_CACHE
+ARG GLIBC_VERSION
 
 # Copy system & flutter dependencies
 COPY --from=build /build_system_dependencies/ /
 COPY --chown=flutter:flutter --from=build /build_flutter_dependencies/ /
 
+# Install linux dependency and utils
+RUN set -eux; apk --no-cache add bash git curl unzip \
+    /usr/lib/glibc-${GLIBC_VERSION}.apk \
+    /usr/lib/glibc-bin-${GLIBC_VERSION}.apk
+
 # Add enviroment variables
-ENV LANG=en_US.UTF-8 \
-    LC_ALL=en_US.UTF-8 \
-    LANGUAGE=en_US:en \
-    FLUTTER_HOME=$FLUTTER_HOME \
+ENV FLUTTER_HOME=$FLUTTER_HOME \
     PUB_CACHE=$PUB_CACHE \
     FLUTTER_ROOT=$FLUTTER_HOME \
     PATH="${PATH}:${FLUTTER_HOME}/bin:${PUB_CACHE}/bin"
 
 # Add lables
 LABEL name="plugfox/flutter:base-${FLUTTER_VERSION}" \
-      description="Debian with flutter & dart" \
+      description="Alpine with flutter & dart" \
       license="MIT" \
       vcs-type="git" \
       vcs-url="https://github.com/plugfox/docker_flutter" \
@@ -127,7 +129,7 @@ LABEL name="plugfox/flutter:base-${FLUTTER_VERSION}" \
 
 # User by default
 USER flutter
-WORKDIR /home/flutter
+WORKDIR /home
 SHELL [ "/bin/bash", "-c" ]
 
 # Default command

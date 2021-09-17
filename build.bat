@@ -1,7 +1,7 @@
 @ECHO OFF
 @SET FLUTTER_VERSION=stable
 rem @docker pull debian:buster-slim
-rem --force-rm
+rem --force-rm --squash
 @docker build --no-cache --compress ^
     --file Dockerfile ^
     --build-arg FLUTTER_VERSION="%FLUTTER_VERSION%" ^
