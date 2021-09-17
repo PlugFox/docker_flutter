@@ -42,7 +42,9 @@ RUN set -eux; mkdir -p /usr/lib /tmp/glibc $PUB_CACHE \
       https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk
 
 # Install & config Flutter
-RUN set -eux; git clone -b ${FLUTTER_VERSION} https://github.com/flutter/flutter.git "${FLUTTER_ROOT}"
+RUN set -eux; git clone -b ${FLUTTER_VERSION} --depth 1 --no-tags --single-branch https://github.com/flutter/flutter.git "${FLUTTER_ROOT}" \
+    && cd "${FLUTTER_ROOT}" \
+    && git gc --prune=all
 
 # Create user & group
 RUN set -eux; addgroup -S flutter \
