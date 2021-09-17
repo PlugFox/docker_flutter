@@ -2,22 +2,8 @@
 
 set -ex
 
-#nohup 
-sh -c ' \
-    docker pull debian:stretch \
-    && docker build \
-    --build-arg flutter_version="stable" \
-    --tag plugfox/flutter:stable \
-    $PWD \
-    && docker build \
-    --build-arg flutter_version="beta" \
-    --tag plugfox/flutter:beta \
-    $PWD \
-    && echo "DOCKERFILE BUILD SUCCESSFUL"' \
-    > log.txt \
-    && echo "DOCKERFILE BUILD SUCCESSFUL"
-
-# Test result
-docker run --rm -it -v ${PWD}:/build --workdir /build plugfox/flutter:stable flutter doctor
-docker run --rm -it -v ${PWD}:/build --workdir /build plugfox/flutter:beta flutter doctor
-#&
+FLUTTER_VERSION="beta"
+docker build --no-cache --force-rm --squash --compress \
+    --file Dockerfile \
+    --build-arg FLUTTER_VERSION="${FLUTTER_VERSION}" \
+    --tag "plugfox/flutter:base-${FLUTTER_VERSION}" .
