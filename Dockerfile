@@ -1,132 +1,135 @@
 # ------------------------------------------------------
 #                       Dockerfile
 # ------------------------------------------------------
-# image:    plugfox/flutter
-# repo:     https://github.com/plugfox/docker_flutter
-# requires: debian:stretch
-# authors:  plugfox@gmail.com, Maria Melnik
-# license:  MIT
+# image:       plugfox/flutter:base
+# repository:  https://github.com/plugfox/docker_flutter
+# requires:    debian:buster-slim
+# license:     MIT
+# authors:     Plague Fox, Maria Melnik
 # ------------------------------------------------------
 
-FROM debian:stretch
+ARG FLUTTER_VERSION="stable"
+ARG FLUTTER_HOME="/opt/flutter"
+ARG PUB_CACHE="/var/tmp/.pub_cache"
 
-ARG flutter_version
-
-ENV FLUTTER_VERSION=$flutter_version
-ENV ANDROID_VERSION="29"
-ENV ANDROID_SDK_URL="https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip"
-ENV ANDROID_TOOLS_ROOT="/usr/lib/android_sdk"
-
-# image mostly inspired from https://github.com/GoogleCloudPlatform/cloud-builders-community/blob/770e0e9/flutter/Dockerfile
-
-LABEL dev.plugfox.flutter.name="Debian linux image for Flutter & Dart with helpful utils" \
-      dev.plugfox.flutter.license="MIT" \
-      dev.plugfox.flutter.vcs-type="git" \
-      dev.plugfox.flutter.vcs-url="https://github.com/plugfox/docker_flutter" \
-      maintainer="plugfox@gmail.com" \
-      authors="plugfox" \
-      version="$FLUTTER_VERSION" \
-      description="Debian Linux image for Flutter & Dart with helpful utils and web build support."
+FROM debian:bullseye-slim as build
 
 USER root
+
+ARG FLUTTER_VERSION
+ARG FLUTTER_HOME
+ARG PUB_CACHE
+
 WORKDIR /
 
-# Locales
-RUN export LC_ALL=en_US.UTF-8
-RUN export LANG=en_US.UTF-8
-RUN export LANGUAGE=en_US:en
-RUN apt-get clean && apt-get update && apt-get install -y locales
-RUN locale-gen en_US.UTF-8
-RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && locale-gen
-ENV LC_ALL en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
+ENV LANG=en_US.UTF-8 \
+    LC_ALL=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
+    FLUTTER_VERSION=$FLUTTER_VERSION \
+    FLUTTER_HOME=$FLUTTER_HOME \
+    PUB_CACHE=$PUB_CACHE \
+    FLUTTER_ROOT=$FLUTTER_HOME \
+    PATH="${PATH}:${FLUTTER_HOME}/bin:${PUB_CACHE}/bin"
 
+# Make base dir if not exists
 # Install linux dependency and utils
-RUN apt-get clean -y
-RUN apt-get update -y
-RUN apt-get install -y \
-  git \
-  wget \
-  curl \
-  unzip \
-  lcov \
-  lib32stdc++6 \
-  libglu1-mesa \
-  default-jdk-headless \
-  sqlite3 \
-  libsqlite3-dev \
-  chromium \ 
-  firefox-esr
+RUN set -eux; mkdir -p /usr/lib /var/tmp /bin $PUB_CACHE \
+    && apt-get clean -y \
+    && apt-get update -y \
+    && apt-get install -y --no-install-recommends \
+                       git curl unzip ca-certificates \
+                       dnsutils openssh-client lib32stdc++6 \
+    # Remove dependencies
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    # Clean trash
+    && rm -rf /var/lib/apt/lists/* /tmp/*
 
-ENV CHROME_EXECUTABLE=/usr/bin/chromium
+# Install & config Flutter
+RUN set -eux; git clone -b ${FLUTTER_VERSION} https://github.com/flutter/flutter.git "${FLUTTER_ROOT}" \
+    && chown -R $(whoami):$(whoami) ${FLUTTER_ROOT} ${PUB_CACHE} \
+    && cd "${FLUTTER_ROOT}" \
+    && git clean -fdx
 
-# Pub cache dir
-ENV PUB_CACHE="/usr/lib/pub"
-RUN mkdir -p "${PUB_CACHE}"
-ENV PATH="${PATH}:${PUB_CACHE}/bin"
+# Create user & group
+RUN set -eux; groupadd flutter \
+    && useradd -m --home-dir /home/flutter -g flutter flutter \
+    && chown -R flutter:flutter /opt
 
-#RUN mkdir -p /root/db
+# Create system dependencies
+RUN set -eux; for f in \
+        /etc/group \
+        /etc/passwd \
+        /etc/nsswitch.conf \
+        /etc/ssl/certs \
+        /usr/share/ca-certificates \
+        /usr/bin/unzip \
+        /usr/bin/git \
+        #/usr/bin/curl \
+        #/usr/lib/x86_64-linux-gnu/libcurl.so.4 \
+        #/lib/ \
+        #/lib32/ \
+        #/lib64/ \
+    ; do \
+        dir="$(dirname "$f")"; \
+        mkdir -p "/build_system_dependencies$dir"; \
+        cp --archive --link --dereference --no-target-directory "$f" "/build_system_dependencies$f"; \
+    done
 
-# Install the Android SDK Dependency.
-RUN mkdir -p "${ANDROID_TOOLS_ROOT}"
-ENV ANDROID_SDK_ARCHIVE="${ANDROID_TOOLS_ROOT}/archive"
-RUN wget -q "${ANDROID_SDK_URL}" -O "${ANDROID_SDK_ARCHIVE}"
-RUN unzip -q -d "${ANDROID_TOOLS_ROOT}" "${ANDROID_SDK_ARCHIVE}"
-RUN yes "y" | "${ANDROID_TOOLS_ROOT}/tools/bin/sdkmanager" "build-tools;$ANDROID_VERSION.0.0"
-RUN yes "y" | "${ANDROID_TOOLS_ROOT}/tools/bin/sdkmanager" "platforms;android-$ANDROID_VERSION"
-RUN yes "y" | "${ANDROID_TOOLS_ROOT}/tools/bin/sdkmanager" "platform-tools"
-RUN rm "${ANDROID_SDK_ARCHIVE}"
-ENV PATH="${ANDROID_TOOLS_ROOT}/tools:${PATH}"
-ENV PATH="${ANDROID_TOOLS_ROOT}/tools/bin:${PATH}"
+# Create flutter dependencies
+RUN set -eux; \
+    for f in \
+        ${FLUTTER_HOME} \
+        ${PUB_CACHE} \
+        /home/flutter \
+    ; do \
+        dir="$(dirname "$f")"; \
+        mkdir -p "/build_flutter_dependencies$dir"; \
+        cp --archive --link --dereference --no-target-directory "$f" "/build_flutter_dependencies$f"; \
+    done
 
-# Install Flutter.
-ENV FLUTTER_HOME="/usr/lib/flutter"
-ENV FLUTTER_ROOT=$FLUTTER_HOME
-RUN git clone --branch ${FLUTTER_VERSION} --depth=1 https://github.com/flutter/flutter "${FLUTTER_ROOT}"
-ENV PATH="${FLUTTER_ROOT}/bin:${PATH}"
-ENV ANDROID_HOME="${ANDROID_TOOLS_ROOT}"
+# Create new clear layer
+#FROM scratch as production
+FROM debian:bullseye-slim as production
+#FROM gcr.io/distroless/base as production
 
-# Disable analytics and crash reporting on the builder.
-RUN flutter config --no-analytics
+ARG FLUTTER_VERSION
+ARG ANDROID_HOME
+ARG FLUTTER_HOME
+ARG PUB_CACHE
 
-# Perform an artifact precache so that no extra assets need to be downloaded on demand.
-RUN flutter precache
+# Copy system & flutter dependencies
+COPY --from=build /build_system_dependencies/ /
+COPY --chown=flutter:flutter --from=build /build_flutter_dependencies/ /
 
-# Accept licenses.
-RUN yes "y" | flutter doctor --android-licenses \
-    && rm -rfv /flutter/bin/cache/artifacts/gradle_wrapper
-    # @see https://circleci.com/docs/2.0/high-uid-error/
+# Add enviroment variables
+ENV LANG=en_US.UTF-8 \
+    LC_ALL=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
+    FLUTTER_HOME=$FLUTTER_HOME \
+    PUB_CACHE=$PUB_CACHE \
+    FLUTTER_ROOT=$FLUTTER_HOME \
+    PATH="${PATH}:${FLUTTER_HOME}/bin:${PUB_CACHE}/bin"
 
-# Perform a doctor run.
-RUN flutter doctor -v
+# Add lables
+LABEL name="plugfox/flutter:base-${FLUTTER_VERSION}" \
+      description="Debian with flutter & dart" \
+      license="MIT" \
+      vcs-type="git" \
+      vcs-url="https://github.com/plugfox/docker_flutter" \
+      maintainer="plugfox@gmail.com" \
+      authors="plugfox" \
+      user="flutter" \
+      build_date="$(date +'%m/%d/%Y')" \
+      dart.flutter.version="$FLUTTER_VERSION" \
+      dart.flutter.home="$FLUTTER_HOME" \
+      dart.cache="$PUB_CACHE"
 
-# Enable web
-RUN flutter config --enable-web
+# User by default
+USER flutter
+WORKDIR /home/flutter
+SHELL [ "/bin/bash", "-c" ]
 
-# Install dart-sdk tools
-RUN apt-get update -y
-RUN apt-get install apt-transport-https -y
-RUN apt-get install gnupg -y
-RUN sh -c "wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -"
-RUN sh -c "wget -qO- https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list > /etc/apt/sources.list.d/dart_stable.list"
-RUN apt-get update -y
-RUN apt-get install dart -y
-ENV PATH="${PATH}:/usr/lib/dart/bin"
-ENV DART_SDK="/usr/lib/dart"
-
-# Get some usefull packages
-RUN flutter pub global activate stagehand
-RUN flutter pub global activate grinder
-RUN flutter pub global activate cider
-RUN flutter pub global activate pana
-RUN flutter pub global activate dart_code_metrics
-
-# Symlinks
-RUN ln -s $DART_SDK /opt/dart; ln -s $FLUTTER_HOME /opt/flutter; ln -s $PUB_CACHE /opt/pub; ln -s $ANDROID_TOOLS_ROOT /opt/android_sdk
-
-# Remove trash
-RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-#ENTRYPOINT [ "sqlite3" ]
-#CMD ["ansible"]
+# Default command
+CMD [ "flutter", "doctor" ]
+#ENTRYPOINT [  ]
