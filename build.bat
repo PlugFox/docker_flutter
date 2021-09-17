@@ -1,10 +1,8 @@
 @ECHO OFF
 @SET FLUTTER_VERSION=stable
-rem @docker pull debian:buster-slim
-rem --force-rm --squash
-@docker build --no-cache --compress ^
+@docker build --no-cache --force-rm --squash --compress ^
     --file Dockerfile ^
     --build-arg FLUTTER_VERSION="%FLUTTER_VERSION%" ^
     --tag plugfox/flutter:base-%FLUTTER_VERSION% .
-
-rem docker run --rm -it -v ${PWD}:/build --workdir /build plugfox/flutter:base-stable flutter doctor
+rem docker run --rm -it --user root -v ${PWD}:/build --workdir /build plugfox/flutter:base-stable bash
+rem docker push plugfox/flutter:base-stable

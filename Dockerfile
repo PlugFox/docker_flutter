@@ -32,22 +32,17 @@ ENV GLIBC_VERSION=$GLIBC_VERSION \
     PATH="${PATH}:${FLUTTER_HOME}/bin:${PUB_CACHE}/bin"
 
 # Install linux dependency and utils
-RUN set -eux; mkdir -p /usr/lib $PUB_CACHE \
+RUN set -eux; mkdir -p /usr/lib /tmp/glibc $PUB_CACHE \
     && apk --no-cache add bash curl git ca-certificates wget unzip \
     && wget -q -O /etc/apk/keys/sgerrand.rsa.pub \
       https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub \
-    && wget -O /usr/lib/glibc-${GLIBC_VERSION}.apk \
+    && wget -O /tmp/glibc/glibc.apk \
       https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk \
-    && wget -O /usr/lib/glibc-bin-${GLIBC_VERSION}.apk \
+    && wget -O /tmp/glibc/glibc-bin.apk \
       https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk
-
-    #&& apk --no-cache add glibc-${GLIBC_VERSION}.apk glibc-bin-${GLIBC_VERSION}.apk
 
 # Install & config Flutter
 RUN set -eux; git clone -b ${FLUTTER_VERSION} https://github.com/flutter/flutter.git "${FLUTTER_ROOT}"
-    #&& chown -R $(whoami):$(whoami) ${FLUTTER_ROOT} ${PUB_CACHE} \
-    #&& cd "${FLUTTER_ROOT}" \
-    #&& git clean -fdx
 
 # Create user & group
 RUN set -eux; addgroup -S flutter \
@@ -60,15 +55,8 @@ RUN set -eux; for f in \
         /etc/passwd \
         /etc/ssl/certs \
         /usr/share/ca-certificates \
-        /usr/lib \
+        /tmp/glibc \
         /etc/apk/keys \
-        #/etc/nsswitch.conf \
-        #/usr/bin/unzip \
-        #/usr/bin/curl \
-        #/usr/lib/x86_64-linux-gnu/libcurl.so.4 \
-        #/lib/ \
-        #/lib32/ \
-        #/lib64/ \
     ; do \
         dir="$(dirname "$f")"; \
         mkdir -p "/build_system_dependencies$dir"; \
@@ -88,15 +76,11 @@ RUN set -eux; \
     done
 
 # Create new clear layer
-#FROM scratch as production
-#FROM debian:bullseye-slim as production
-#FROM gcr.io/distroless/base as production
 FROM alpine:latest as production
 
 ARG FLUTTER_VERSION
 ARG FLUTTER_HOME
 ARG PUB_CACHE
-ARG GLIBC_VERSION
 
 # Copy system & flutter dependencies
 COPY --from=build /build_system_dependencies/ /
@@ -104,8 +88,9 @@ COPY --chown=flutter:flutter --from=build /build_flutter_dependencies/ /
 
 # Install linux dependency and utils
 RUN set -eux; apk --no-cache add bash git curl unzip \
-    /usr/lib/glibc-${GLIBC_VERSION}.apk \
-    /usr/lib/glibc-bin-${GLIBC_VERSION}.apk
+      /tmp/glibc/glibc.apk \
+      /tmp/glibc/glibc-bin.apk \
+    && rm -rf /tmp/*
 
 # Add enviroment variables
 ENV FLUTTER_HOME=$FLUTTER_HOME \
@@ -134,4 +119,3 @@ SHELL [ "/bin/bash", "-c" ]
 
 # Default command
 CMD [ "flutter", "doctor" ]
-#ENTRYPOINT [  ]
