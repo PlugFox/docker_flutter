@@ -1,12 +1,17 @@
-# ------------------------------------------------------
-#                       Dockerfile
-# ------------------------------------------------------
-# image:       plugfox/flutter:base
+# ----------------------------------------------------------------------------------------
+#                                        Dockerfile
+# ----------------------------------------------------------------------------------------
+# image:       plugfox/flutter:${FLUTTER_VERSION}-base
 # repository:  https://github.com/plugfox/docker_flutter
-# requires:    debian:buster-slim
 # license:     MIT
-# authors:     Plague Fox, Maria Melnik
-# ------------------------------------------------------
+# requires:
+# + alpine:latest
+# + adoptopenjdk/openjdk11:alpine-slim
+# + plugfox/flutter:${version}-base
+# authors:
+# + Plague Fox <PlugFox@gmail.com>
+# + Maria Melnik
+# ----------------------------------------------------------------------------------------
 
 ARG FLUTTER_VERSION="stable"
 ARG FLUTTER_HOME="/opt/flutter"
@@ -45,12 +50,9 @@ RUN set -eux; mkdir -p /usr/lib /tmp/glibc $PUB_CACHE \
 RUN set -eux; git clone -b ${FLUTTER_VERSION} --depth 1 --no-tags --single-branch https://github.com/flutter/flutter.git "${FLUTTER_ROOT}" \
     && cd "${FLUTTER_ROOT}" \
     && git gc --prune=all \
-    && rm -rf /opt/flutter/packages/flutter /opt/flutter/dev
-
-# Create user & group
-RUN set -eux; addgroup -S flutter \
-    && adduser -S flutter -G flutter -h /home \
-    && chown -R flutter:flutter ${FLUTTER_ROOT} ${PUB_CACHE}
+    #&& rm -rf /opt/flutter/packages/flutter /opt/flutter/dev \
+    && cd / \
+    && mv /root /home/
 
 # Create system dependencies
 RUN set -eux; for f in \
@@ -105,18 +107,18 @@ ENV FLUTTER_HOME=$FLUTTER_HOME \
     PATH="${PATH}:${FLUTTER_HOME}/bin:${PUB_CACHE}/bin"
 
 # Add lables
-LABEL name="plugfox/flutter:base-${FLUTTER_VERSION}" \
+LABEL name="plugfox/flutter:${FLUTTER_VERSION}-base" \
       description="Alpine with flutter & dart" \
       license="MIT" \
       vcs-type="git" \
       vcs-url="https://github.com/plugfox/docker_flutter" \
-      maintainer="plugfox@gmail.com" \
-      authors="plugfox" \
+      maintainer="Plague Fox <plugfox@gmail.com>" \
+      authors="@plugfox" \
       user="flutter" \
       build_date="$(date +'%m/%d/%Y')" \
-      dart.flutter.version="$FLUTTER_VERSION" \
-      dart.flutter.home="$FLUTTER_HOME" \
-      dart.cache="$PUB_CACHE"
+      flutter.version="${FLUTTER_VERSION}" \
+      flutter.home="${FLUTTER_HOME}" \
+      flutter.cache="${PUB_CACHE}"
 
 # User by default
 USER flutter

@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
-
 set -ex
-
-FLUTTER_VERSION="beta"
+FLUTTER_VERSION="stable"
 docker build --no-cache --force-rm --squash --compress \
-    --file Dockerfile \
+    --file flutter_base.dockerfile \
     --build-arg FLUTTER_VERSION="${FLUTTER_VERSION}" \
-    --tag "plugfox/flutter:base-${FLUTTER_VERSION}" .
+    --tag "plugfox/flutter:${FLUTTER_VERSION}-base" .
