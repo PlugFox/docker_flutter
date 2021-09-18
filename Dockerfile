@@ -44,7 +44,8 @@ RUN set -eux; mkdir -p /usr/lib /tmp/glibc $PUB_CACHE \
 # Install & config Flutter
 RUN set -eux; git clone -b ${FLUTTER_VERSION} --depth 1 --no-tags --single-branch https://github.com/flutter/flutter.git "${FLUTTER_ROOT}" \
     && cd "${FLUTTER_ROOT}" \
-    && git gc --prune=all
+    && git gc --prune=all \
+    && rm -rf /opt/flutter/packages/flutter /opt/flutter/dev
 
 # Create user & group
 RUN set -eux; addgroup -S flutter \
@@ -53,8 +54,6 @@ RUN set -eux; addgroup -S flutter \
 
 # Create system dependencies
 RUN set -eux; for f in \
-        /etc/group \
-        /etc/passwd \
         /etc/ssl/certs \
         /usr/share/ca-certificates \
         /tmp/glibc \
@@ -84,15 +83,20 @@ ARG FLUTTER_VERSION
 ARG FLUTTER_HOME
 ARG PUB_CACHE
 
-# Copy system & flutter dependencies
+# Copy system dependencies
 COPY --from=build /build_system_dependencies/ /
-COPY --chown=flutter:flutter --from=build /build_flutter_dependencies/ /
 
 # Install linux dependency and utils
 RUN set -eux; apk --no-cache add bash git curl unzip \
       /tmp/glibc/glibc.apk \
       /tmp/glibc/glibc-bin.apk \
-    && rm -rf /tmp/*
+    && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/apk/* \
+      /usr/share/man/* /usr/share/doc \
+    && echo "flutter:x:501:flutter" >> /etc/group \
+    && echo "flutter:x:500:101:Flutter user,,,:/home:/sbin/nologin" >> /etc/passwd
+
+# Copy flutter dependencies
+COPY --chown=flutter:flutter --from=build /build_flutter_dependencies/ /
 
 # Add enviroment variables
 ENV FLUTTER_HOME=$FLUTTER_HOME \
