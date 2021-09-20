@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------------------
 #                                        Dockerfile
 # ----------------------------------------------------------------------------------------
-# image:       plugfox/flutter:${FLUTTER_VERSION}-android-base
+# image:       plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-android-base
 # repository:  https://github.com/plugfox/docker_flutter
 # license:     MIT
 # requires:
@@ -10,9 +10,11 @@
 # authors:
 # + Plague Fox <PlugFox@gmail.com>
 # + Maria Melnik
+# + Dmitri Z <z-dima@live.ru>
 # ----------------------------------------------------------------------------------------
 
-ARG FLUTTER_VERSION="stable"
+ARG FLUTTER_CHANNEL="stable"
+ARG FLUTTER_VERSION=""
 ARG ANDROID_PLATFORM_VERSION=31
 ARG ANDROID_BUILD_TOOLS_VERSION=31.0.0
 # ANDROID_SDK_TOOLS_VERSION Comes from https://developer.android.com/studio/#command-tools
@@ -62,10 +64,11 @@ RUN set -eux; \
     done
 
 # Create new clear layer
-FROM plugfox/flutter:${FLUTTER_VERSION}-base as production
+FROM plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-base as production
 
 USER root
 
+ARG FLUTTER_CHANNEL
 ARG FLUTTER_VERSION
 ARG ANDROID_PLATFORM_VERSION=31
 ARG ANDROID_BUILD_TOOLS_VERSION
@@ -102,7 +105,7 @@ RUN set -eux; apk add --no-cache openjdk11-jdk \
 #    && cd .. && rm -rf demo
 
 # Add lables
-LABEL name="plugfox/flutter:${FLUTTER_VERSION}-android-base" \
+LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-android-base" \
       description="Alpine with flutter & dart for android" \
       license="MIT" \
       vcs-type="git" \
