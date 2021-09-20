@@ -51,17 +51,9 @@ RUN set -eux; mkdir -p /usr/lib /tmp/glibc $PUB_CACHE \
       https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk
 
 # Install & config Flutter
-RUN if [[ -z "$FLUTTER_VERSION" ]] ; then  \
-    set -eux; git clone -b ${FLUTTER_CHANNEL} --depth 1 --no-tags --single-branch https://github.com/flutter/flutter.git "${FLUTTER_ROOT}" \
+RUN set -eux; git clone -b ${FLUTTER_CHANNEL} --depth 1 --no-tags --single-branch https://github.com/flutter/flutter.git "${FLUTTER_ROOT}" \
         && cd "${FLUTTER_ROOT}" \
-        && git gc --prune=all \
-        #&& rm -rf /opt/flutter/packages/flutter /opt/flutter/dev \
-        && cd / \
-        && mv /root /home/;  \
-    else  \
-    set -eux; git clone -b ${FLUTTER_CHANNEL} --depth 1 --no-tags --single-branch https://github.com/flutter/flutter.git "${FLUTTER_ROOT}" \
-        && cd "${FLUTTER_ROOT}" \
-        && git checkout ${FLUTTER_VERSION} \
+        && if [[ -n "$FLUTTER_VERSION" ]] ; then git checkout ${FLUTTER_VERSION} ; fi \
         && git gc --prune=all \
         #&& rm -rf /opt/flutter/packages/flutter /opt/flutter/dev \
         && cd / \
