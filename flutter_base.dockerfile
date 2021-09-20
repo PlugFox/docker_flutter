@@ -51,13 +51,18 @@ RUN set -eux; mkdir -p /usr/lib /tmp/glibc $PUB_CACHE \
       https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk
 
 # Install & config Flutter
-RUN set -eux; git clone -b ${FLUTTER_CHANNEL} --depth 1 --no-tags --single-branch https://github.com/flutter/flutter.git "${FLUTTER_ROOT}" \
+RUN set -eux; if [[ -z "$FLUTTER_VERSION" ]] ; then \
+        git clone -b ${FLUTTER_CHANNEL} --depth 1 --no-tags https://github.com/flutter/flutter.git "${FLUTTER_ROOT}" ; \
+    else \
+        #mkdir -p ${FLUTTER_ROOT} \
+        #&& wget -qO- https://storage.googleapis.com/flutter_infra_release/releases/${FLUTTER_CHANNEL}/linux/flutter_linux_${FLUTTER_VERSION}-${FLUTTER_CHANNEL}.tar.xz | tar xfJ - -C ${FLUTTER_ROOT} --strip-components=1 ; \
+        git clone -b ${FLUTTER_VERSION} --depth 1 --no-tags https://github.com/flutter/flutter.git "${FLUTTER_ROOT}" ; \
+    fi \
         && cd "${FLUTTER_ROOT}" \
-        && if [[ -n "$FLUTTER_VERSION" ]] ; then git checkout ${FLUTTER_VERSION} ; fi \
         && git gc --prune=all \
         #&& rm -rf /opt/flutter/packages/flutter /opt/flutter/dev \
         && cd / \
-        && mv /root /home/;
+        && mv /root /home/
 
 # Create system dependencies
 RUN set -eux; for f in \
