@@ -127,7 +127,7 @@ LABEL name="plugfox/flutter:base-${FLUTTER_CHANNEL}${FLUTTER_VERSION}" \
       user="flutter" \
       build_date="$(date +'%m/%d/%Y')" \
       dart.flutter.channel="$FLUTTER_CHANNEL" \
-      dart.flutter.version="$FLUTTER_CHANNEL" \
+      dart.flutter.version="$FLUTTER_VERSION" \
       dart.flutter.home="$FLUTTER_HOME" \
       dart.cache="$PUB_CACHE"
 
