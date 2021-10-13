@@ -6,8 +6,6 @@
 # license:     MIT
 # requires:
 # + alpine:latest
-# + adoptopenjdk/openjdk11:alpine-slim
-# + plugfox/flutter:${version}-base
 # authors:
 # + Plague Fox <PlugFox@gmail.com>
 # + Maria Melnik
@@ -93,6 +91,8 @@ ARG FLUTTER_VERSION
 ARG FLUTTER_HOME
 ARG PUB_CACHE
 
+RUN mkdir -p /fs && find / -xdev | sort > /fs/before.txt
+
 # Copy system dependencies
 COPY --from=build /build_system_dependencies/ /
 
@@ -103,10 +103,20 @@ RUN set -eux; apk --no-cache add bash git curl unzip \
     && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/apk/* \
       /usr/share/man/* /usr/share/doc \
     && echo "flutter:x:501:flutter" >> /etc/group \
-    && echo "flutter:x:500:101:Flutter user,,,:/home:/sbin/nologin" >> /etc/passwd
+    && echo "flutter:x:500:101:Flutter user,,,:/home:/sbin/nologin" >> /etc/passwd \
+    && chown flutter:flutter -R /tmp \
+    && git config --global user.email "plugfox@gmail.com" \
+    && git config --global user.name "Plague Fox"
 
 # Copy flutter dependencies
 COPY --chown=flutter:flutter --from=build /build_flutter_dependencies/ /
+
+RUN find / -xdev | sort > /fs/after.txt && chown flutter:flutter -R /fs
+
+# User by default
+USER flutter
+WORKDIR /home
+SHELL [ "/bin/bash", "-c" ]
 
 # Add enviroment variables
 ENV FLUTTER_HOME=$FLUTTER_HOME \
@@ -128,11 +138,6 @@ LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-base" \
       flutter.version="${FLUTTER_VERSION}" \
       flutter.home="${FLUTTER_HOME}" \
       flutter.cache="${PUB_CACHE}"
-
-# User by default
-USER flutter
-WORKDIR /home
-SHELL [ "/bin/bash", "-c" ]
 
 # Default command
 CMD [ "flutter", "doctor" ]

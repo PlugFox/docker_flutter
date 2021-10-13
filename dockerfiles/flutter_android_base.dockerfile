@@ -6,7 +6,7 @@
 # license:     MIT
 # requires:
 # + alpine:latest
-# + plugfox/flutter:${version}-base
+# + plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-base
 # authors:
 # + Plague Fox <PlugFox@gmail.com>
 # + Maria Melnik
@@ -21,7 +21,6 @@ ARG ANDROID_BUILD_TOOLS_VERSION=31.0.0
 ARG ANDROID_SDK_TOOLS_VERSION=7583922
 ARG ANDROID_HOME="/opt/android"
 
-#FROM adoptopenjdk/openjdk11:alpine-slim as downloading
 FROM alpine:latest as build
 
 USER root
@@ -70,7 +69,7 @@ USER root
 
 ARG FLUTTER_CHANNEL
 ARG FLUTTER_VERSION
-ARG ANDROID_PLATFORM_VERSION=31
+ARG ANDROID_PLATFORM_VERSION
 ARG ANDROID_BUILD_TOOLS_VERSION
 ARG ANDROID_SDK_TOOLS_VERSION
 ARG ANDROID_HOME
@@ -78,31 +77,23 @@ ARG ANDROID_HOME
 # Copy android dependencies
 COPY --chown=flutter:flutter --from=build /build_android_dependencies/ /
 
+# Init android dependency and utils
+RUN set -eux; apk add --no-cache openjdk11-jdk \
+    && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/apk/* \
+      /usr/share/man/* /usr/share/doc \
+    && yes | sdkmanager --sdk_root=${ANDROID_HOME} --licenses \
+    && sdkmanager --sdk_root=${ANDROID_HOME} --install "platform-tools"
+
+# User by default
+USER flutter
+WORKDIR /home
+SHELL [ "/bin/bash", "-c" ]
+
 # Add enviroment variables
 ENV ANDROID_HOME=$ANDROID_HOME \
     ANDROID_SDK_ROOT=$ANDROID_HOME \
     ANDROID_TOOLS_ROOT=$ANDROID_HOME \
     PATH="${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools"
-
-# Init android dependency and utils
-RUN set -eux; apk add --no-cache openjdk11-jdk \
-    && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/apk/* \
-      /usr/share/man/* /usr/share/doc \
-    #&& su flutter \
-    && yes | sdkmanager --sdk_root=${ANDROID_HOME} --licenses \
-    && sdkmanager --sdk_root=${ANDROID_HOME} --install "platform-tools"
-    # "extras;google;instantapps"
-
-# Prebuild app
-#RUN set -eux; flutter config --no-analytics --enable-android \
-#    && flutter precache --no-universal --android \
-#    && yes "y" | flutter doctor --android-licenses \
-#    && cd "${FLUTTER_ROOT}/examples/" \
-#    && flutter create --pub -a kotlin --project-name demo --platforms android,web -t app demo \
-#    && cd demo \
-#    && flutter pub upgrade --major-versions \
-#    && flutter build apk --release --pub --shrink --target-platform android-arm,android-arm64,android-x64 \
-#    && cd .. && rm -rf demo
 
 # Add lables
 LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-android-base" \
@@ -118,11 +109,6 @@ LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-android-base" \
       android.build_tools_version="${ANDROID_BUILD_TOOLS_VERSION}" \
       android.build_tools_version="${ANDROID_SDK_TOOLS_VERSION}" \
       android.home="${ANDROID_HOME}"
-
-# User by default
-USER flutter
-WORKDIR /home
-SHELL [ "/bin/bash", "-c" ]
 
 # Default command
 CMD [ "flutter", "doctor" ]

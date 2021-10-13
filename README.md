@@ -7,6 +7,7 @@ Symlinks to dart, flutter in the folder: `/opt/flutter`
 Rolling release update strategy at every monday.  
   
 ### Env  
- + FLUTTER_ROOT = "/opt/flutter"  
- + PUB_CACHE    = "/var/tmp/.pub_cache"  
++ FLUTTER_ROOT = "/opt/flutter"  
++ PUB_CACHE    = "/var/tmp/.pub_cache"  
++ ANDROID_HOME = "/opt/android"  
   
