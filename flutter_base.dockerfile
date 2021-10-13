@@ -1,12 +1,18 @@
-# ------------------------------------------------------
-#                       Dockerfile
-# ------------------------------------------------------
-# image:       plugfox/flutter:base
+# ----------------------------------------------------------------------------------------
+#                                        Dockerfile
+# ----------------------------------------------------------------------------------------
+# image:       plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-base
 # repository:  https://github.com/plugfox/docker_flutter
-# requires:    debian:buster-slim
 # license:     MIT
-# authors:     Plague Fox, Maria Melnik
-# ------------------------------------------------------
+# requires:
+# + alpine:latest
+# + adoptopenjdk/openjdk11:alpine-slim
+# + plugfox/flutter:${version}-base
+# authors:
+# + Plague Fox <PlugFox@gmail.com>
+# + Maria Melnik
+# + Dmitri Z <z-dima@live.ru>
+# ----------------------------------------------------------------------------------------
 
 ARG FLUTTER_CHANNEL="stable"
 ARG FLUTTER_VERSION=""
@@ -45,23 +51,15 @@ RUN set -eux; mkdir -p /usr/lib /tmp/glibc $PUB_CACHE \
       https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk
 
 # Install & config Flutter
-RUN if [[ -z "$FLUTTER_VERSION" ]] ; then  \
-    set -eux; git clone -b ${FLUTTER_CHANNEL} --depth 1 --no-tags --single-branch https://github.com/flutter/flutter.git "${FLUTTER_ROOT}" \
+RUN set -eux; if [[ -z "$FLUTTER_VERSION" ]] ; then \
+        git clone -b ${FLUTTER_CHANNEL} --depth 1 --no-tags https://github.com/flutter/flutter.git "${FLUTTER_ROOT}" ; \
+    else \
+        git clone -b ${FLUTTER_VERSION} --depth 1 --no-tags https://github.com/flutter/flutter.git "${FLUTTER_ROOT}" ; \
+    fi \
         && cd "${FLUTTER_ROOT}" \
         && git gc --prune=all \
-        && rm -rf /opt/flutter/packages/flutter /opt/flutter/dev;  \
-    else  \
-    set -eux; git clone -b ${FLUTTER_CHANNEL} --depth 1 --no-tags --single-branch https://github.com/flutter/flutter.git "${FLUTTER_ROOT}" \
-        && cd "${FLUTTER_ROOT}" \
-        && git checkout ${FLUTTER_VERSION} \
-        && git gc --prune=all \
-        && rm -rf /opt/flutter/packages/flutter /opt/flutter/dev;
-fi
-
-# Create user & group
-RUN set -eux; addgroup -S flutter \
-    && adduser -S flutter -G flutter -h /home \
-    && chown -R flutter:flutter ${FLUTTER_ROOT} ${PUB_CACHE}
+        && cd / \
+        && mv /root /home/
 
 # Create system dependencies
 RUN set -eux; for f in \
@@ -117,19 +115,19 @@ ENV FLUTTER_HOME=$FLUTTER_HOME \
     PATH="${PATH}:${FLUTTER_HOME}/bin:${PUB_CACHE}/bin"
 
 # Add lables
-LABEL name="plugfox/flutter:base-${FLUTTER_CHANNEL}${FLUTTER_VERSION}" \
+LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-base" \
       description="Alpine with flutter & dart" \
       license="MIT" \
       vcs-type="git" \
       vcs-url="https://github.com/plugfox/docker_flutter" \
-      maintainer="plugfox@gmail.com" \
-      authors="plugfox" \
+      maintainer="Plague Fox <plugfox@gmail.com>" \
+      authors="@plugfox" \
       user="flutter" \
       build_date="$(date +'%m/%d/%Y')" \
-      dart.flutter.channel="$FLUTTER_CHANNEL" \
-      dart.flutter.version="$FLUTTER_VERSION" \
-      dart.flutter.home="$FLUTTER_HOME" \
-      dart.cache="$PUB_CACHE"
+      flutter.channel="${FLUTTER_CHANNEL}" \
+      flutter.version="${FLUTTER_VERSION}" \
+      flutter.home="${FLUTTER_HOME}" \
+      flutter.cache="${PUB_CACHE}"
 
 # User by default
 USER flutter
