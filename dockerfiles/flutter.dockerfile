@@ -12,7 +12,7 @@
 # + Dmitri Z <z-dima@live.ru>
 # ----------------------------------------------------------------------------------------
 
-ARG FLUTTER_CHANNEL="stable"
+ARG FLUTTER_CHANNEL=""
 ARG FLUTTER_VERSION=""
 ARG FLUTTER_HOME="/opt/flutter"
 ARG PUB_CACHE="/var/tmp/.pub_cache"

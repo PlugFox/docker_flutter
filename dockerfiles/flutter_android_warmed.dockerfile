@@ -12,11 +12,11 @@
 # + Dmitri Z <z-dima@live.ru>
 # ----------------------------------------------------------------------------------------
 
-ARG FLUTTER_CHANNEL="stable"
+ARG FLUTTER_CHANNEL=""
 ARG FLUTTER_VERSION=""
 ARG FLUTTER_HOME="/opt/flutter"
 
-FROM plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-android-base as build
+FROM plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-android as build
 
 ARG FLUTTER_CHANNEL
 ARG FLUTTER_VERSION

@@ -13,7 +13,7 @@
 # + Dmitri Z <z-dima@live.ru>
 # ----------------------------------------------------------------------------------------
 
-ARG FLUTTER_CHANNEL="stable"
+ARG FLUTTER_CHANNEL=""
 ARG FLUTTER_VERSION=""
 ARG ANDROID_PLATFORM_VERSION=31
 ARG ANDROID_BUILD_TOOLS_VERSION=31.0.0
@@ -64,7 +64,7 @@ RUN set -eux; \
     done
 
 # Create new clear layer
-FROM plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-base as production
+FROM plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION} as production
 
 USER root
 
