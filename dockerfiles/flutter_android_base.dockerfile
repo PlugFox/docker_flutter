@@ -38,7 +38,7 @@ ENV ANDROID_HOME=$ANDROID_HOME \
     PATH="${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools"
 
 # Install linux dependency and utils
-RUN set -eux; apk --no-cache add bash curl wget unzip \
+RUN set -eux; apk --no-cache add bash curl wget unzip openjdk11-jdk \
     && rm -rf /tmp/* /var/cache/apk/* \
     && mkdir -p ${ANDROID_HOME}/cmdline-tools /root/.android
 
@@ -48,8 +48,9 @@ RUN set -eux; wget -q https://dl.google.com/android/repository/commandlinetools-
     && mv /tmp/cmdline-tools ${ANDROID_HOME}/cmdline-tools/latest/ \
     && rm -rf /tmp/* \
     && touch /root/.android/repositories.cfg \
-    && cd / \
-    && mv /root /home/
+    && yes | sdkmanager --sdk_root=${ANDROID_HOME} --licenses \
+    && sdkmanager --sdk_root=${ANDROID_HOME} --install "platform-tools" \
+    && cd / && mv /root /home/
 
 # Create android dependencies
 RUN set -eux; \
@@ -74,26 +75,23 @@ ARG ANDROID_BUILD_TOOLS_VERSION
 ARG ANDROID_SDK_TOOLS_VERSION
 ARG ANDROID_HOME
 
-# Copy android dependencies
-COPY --chown=flutter:flutter --from=build /build_android_dependencies/ /
-
-# Init android dependency and utils
-RUN set -eux; apk add --no-cache openjdk11-jdk \
-    && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/apk/* \
-      /usr/share/man/* /usr/share/doc \
-    && yes | sdkmanager --sdk_root=${ANDROID_HOME} --licenses \
-    && sdkmanager --sdk_root=${ANDROID_HOME} --install "platform-tools"
-
-# User by default
-USER flutter
-WORKDIR /home
-SHELL [ "/bin/bash", "-c" ]
-
 # Add enviroment variables
 ENV ANDROID_HOME=$ANDROID_HOME \
     ANDROID_SDK_ROOT=$ANDROID_HOME \
     ANDROID_TOOLS_ROOT=$ANDROID_HOME \
     PATH="${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools"
+
+# Copy android dependencies
+COPY --chown=flutter:flutter --from=build /build_android_dependencies/ /
+
+#RUN mkdir -p /tmp && find / -xdev | sort > /tmp/before.txt
+
+# Init android dependency and utils
+RUN set -eux; apk add --no-cache openjdk11-jdk \
+    && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/apk/* \
+      /usr/share/man/* /usr/share/doc
+
+#RUN find / -xdev | sort > /tmp/after.txt
 
 # Add lables
 LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-android-base" \
@@ -109,6 +107,11 @@ LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-android-base" \
       android.build_tools_version="${ANDROID_BUILD_TOOLS_VERSION}" \
       android.build_tools_version="${ANDROID_SDK_TOOLS_VERSION}" \
       android.home="${ANDROID_HOME}"
+
+# User by default
+USER flutter
+WORKDIR /home
+SHELL [ "/bin/bash", "-c" ]
 
 # Default command
 CMD [ "flutter", "doctor" ]
