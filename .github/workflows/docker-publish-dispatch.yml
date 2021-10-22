@@ -10,18 +10,13 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Pull debian
-        run: docker pull debian:stretch
+        run: docker pull alpine:latest
         
-      - name: Build stable image
-        run: docker build . --file Dockerfile --build-arg flutter_channel="stable" --tag plugfox/flutter:stable
-        
-      - name: Build beta image
-        run: docker build . --file Dockerfile --build-arg flutter_channel="beta" --tag plugfox/flutter:beta
+      - name: Build stale images
+        run: make build FLUTTER_CHANNEL="stable"
         
       - name: Log into registry
         run: echo "${{ secrets.DOCKER_LOGIN_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_LOGIN_USERNAME }} --password-stdin
 
-      - name: Push images
-        run: |
-          docker push plugfox/flutter:stable
-          docker push plugfox/flutter:beta
+      - name: Push images to registry
+        run: make build FLUTTER_CHANNEL="stable"

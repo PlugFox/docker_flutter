@@ -69,7 +69,7 @@ endif
 # make shell FLUTTER_VERSION="<ВЕРСИЯ>" e.g. make shell FLUTTER_VERSION="2.5.3"
 shell:
 ifdef FLUTTER_CHANNEL
-	@docker run --rm -it -v ${PWD}:/build --workdir /build \
+	-docker run --rm -it -v ${PWD}:/build --workdir /build \
 		--user=root:root \
 		--name flutter_$(FLUTTER_CHANNEL)_android_warmed \
 		plugfox/flutter:$(FLUTTER_CHANNEL)-android-warmed /bin/bash
