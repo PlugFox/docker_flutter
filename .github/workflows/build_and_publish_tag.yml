@@ -1,0 +1,31 @@
+name: BUILD AND PUBLISH TAG
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Flutter version from https://github.com/flutter/flutter/tags'
+        required: true
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: ✨ Log into registry
+        run: echo "${{ secrets.DOCKER_LOGIN_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_LOGIN_USERNAME }} --password-stdin
+
+      - name: 🐈 Pull alpine:latest
+        run: docker pull alpine:latest
+
+      - name: 🏗️ Build images
+        run: make build FLUTTER_VERSION="${{ github.event.inputs.version }}"
+
+      - name: 🔥 Push images to registry
+        run: make push FLUTTER_VERSION="${{ github.event.inputs.version }}"
+
+      - name: 🗑️ Prune images
+        run: make prune
+

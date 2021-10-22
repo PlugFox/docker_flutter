@@ -1,0 +1,56 @@
+name: BUILD AND PUBLISH BRANCHES
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 7 * * 1'
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: ✨ Log into registry
+        run: echo "${{ secrets.DOCKER_LOGIN_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_LOGIN_USERNAME }} --password-stdin
+
+      - name: 🐈 Pull alpine:latest
+        run: docker pull alpine:latest
+
+      - name: 🏗️ Build stable images
+        run: make build FLUTTER_CHANNEL="stable"
+
+      - name: 🔥 Push stable images to registry
+        run: make push FLUTTER_CHANNEL="stable"
+
+      - name: 🗑️ Prune images
+        run: make prune
+
+      - name: 🏗️ Build beta images
+        run: make build FLUTTER_CHANNEL="beta"
+
+      - name: 🔥 Push beta images to registry
+        run: make push FLUTTER_CHANNEL="beta"
+
+      - name: 🗑️ Prune images
+        run: make prune
+
+      - name: 🏗️ Build dev images
+        run: make build FLUTTER_CHANNEL="dev"
+
+      - name: 🔥 Push dev images to registry
+        run: make push FLUTTER_CHANNEL="dev"
+
+      - name: 🗑️ Prune images
+        run: make prune
+
+      - name: 🏗️ Build master images
+        run: make build FLUTTER_CHANNEL="master"
+
+      - name: 🔥 Push master images to registry
+        run: make push FLUTTER_CHANNEL="master"
+
+      - name: 🗑️ Prune images
+        run: make prune
+
