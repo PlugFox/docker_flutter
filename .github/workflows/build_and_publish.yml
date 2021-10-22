@@ -1,6 +1,9 @@
-name: Dispatch
+name: BUILD AND PUBLISH
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 7 * * 1'
 
 jobs:
   build_and_push:
@@ -9,14 +12,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Pull debian
+      - name: 🐈 Pull alpine:latest
         run: docker pull alpine:latest
         
-      - name: Build stale images
+      - name: 🏗️ Build stale images
         run: make build FLUTTER_CHANNEL="stable"
         
-      - name: Log into registry
+      - name: ✨ Log into registry
         run: echo "${{ secrets.DOCKER_LOGIN_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_LOGIN_USERNAME }} --password-stdin
 
-      - name: Push images to registry
+      - name: 🔥 Push images to registry
         run: make build FLUTTER_CHANNEL="stable"
