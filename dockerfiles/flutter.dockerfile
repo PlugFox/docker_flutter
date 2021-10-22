@@ -16,7 +16,9 @@ ARG FLUTTER_CHANNEL=""
 ARG FLUTTER_VERSION=""
 ARG FLUTTER_HOME="/opt/flutter"
 ARG PUB_CACHE="/var/tmp/.pub_cache"
-ARG GLIBC_VERSION="2.34-r0"
+# "2.34-r0" - не работает на ubuntu, только на windows 10
+ARG GLIBC_VERSION="2.29-r0"
+ARG GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases/download"
 
 FROM alpine:latest as build
 
@@ -27,6 +29,7 @@ ARG FLUTTER_VERSION
 ARG FLUTTER_HOME
 ARG PUB_CACHE
 ARG GLIBC_VERSION
+ARG GLIBC_BASE_URL
 
 WORKDIR /
 
@@ -46,9 +49,9 @@ RUN set -eux; mkdir -p /usr/lib /tmp/glibc $PUB_CACHE \
     && wget -q -O /etc/apk/keys/sgerrand.rsa.pub \
       https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub \
     && wget -O /tmp/glibc/glibc.apk \
-      https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk \
+      ${GLIBC_BASE_URL}/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk \
     && wget -O /tmp/glibc/glibc-bin.apk \
-      https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk \
+      ${GLIBC_BASE_URL}/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk \
     && rm -rf /var/lib/apt/lists/* /var/cache/apk/* \
     && echo "flutter:x:501:flutter" >> /etc/group \
     && echo "flutter:x:500:101:Flutter user,,,:/home:/sbin/nologin" >> /etc/passwd
