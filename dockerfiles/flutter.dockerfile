@@ -120,7 +120,8 @@ RUN set -eux; apk --no-cache add bash git curl unzip  \
     && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/apk/* \
               /usr/share/man/* /usr/share/doc \
     && git config --global user.email "plugfox@gmail.com" \
-    && git config --global user.name "Plague Fox"
+    && git config --global user.name "Plague Fox" \
+    && export BUILD_DATE=$(date +'%m/%d/%Y')
 
 # Add lables
 LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-base" \
@@ -131,7 +132,7 @@ LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-base" \
       maintainer="Plague Fox <plugfox@gmail.com>" \
       authors="@plugfox" \
       user="flutter" \
-      build_date="$(date +'%m/%d/%Y')" \
+      build_date="${BUILD_DATE}" \
       flutter.channel="${FLUTTER_CHANNEL}" \
       flutter.version="${FLUTTER_VERSION}" \
       flutter.home="${FLUTTER_HOME}" \

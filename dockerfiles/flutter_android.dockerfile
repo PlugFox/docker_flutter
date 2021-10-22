@@ -102,7 +102,6 @@ LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-android-base" \
       maintainer="Plague Fox <plugfox@gmail.com>" \
       authors="@plugfox" \
       user="flutter" \
-      build_date="$(date +'%m/%d/%Y')" \
       android.version="${ANDROID_PLATFORM_VERSION}" \
       android.build_tools_version="${ANDROID_BUILD_TOOLS_VERSION}" \
       android.build_tools_version="${ANDROID_SDK_TOOLS_VERSION}" \
