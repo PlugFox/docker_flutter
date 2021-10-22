@@ -6,7 +6,7 @@
 # license:     MIT
 # requires:
 # + alpine:latest
-# + plugfox/flutter:${version}-base
+# + plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-base
 # authors:
 # + Plague Fox <PlugFox@gmail.com>
 # + Maria Melnik
@@ -21,7 +21,6 @@ ARG ANDROID_BUILD_TOOLS_VERSION=31.0.0
 ARG ANDROID_SDK_TOOLS_VERSION=7583922
 ARG ANDROID_HOME="/opt/android"
 
-#FROM adoptopenjdk/openjdk11:alpine-slim as downloading
 FROM alpine:latest as build
 
 USER root
@@ -39,7 +38,7 @@ ENV ANDROID_HOME=$ANDROID_HOME \
     PATH="${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools"
 
 # Install linux dependency and utils
-RUN set -eux; apk --no-cache add bash curl wget unzip \
+RUN set -eux; apk --no-cache add bash curl wget unzip openjdk11-jdk \
     && rm -rf /tmp/* /var/cache/apk/* \
     && mkdir -p ${ANDROID_HOME}/cmdline-tools /root/.android
 
@@ -49,8 +48,9 @@ RUN set -eux; wget -q https://dl.google.com/android/repository/commandlinetools-
     && mv /tmp/cmdline-tools ${ANDROID_HOME}/cmdline-tools/latest/ \
     && rm -rf /tmp/* \
     && touch /root/.android/repositories.cfg \
-    && cd / \
-    && mv /root /home/
+    && yes | sdkmanager --sdk_root=${ANDROID_HOME} --licenses \
+    && sdkmanager --sdk_root=${ANDROID_HOME} --install "platform-tools" \
+    && cd / && mv /root /home/
 
 # Create android dependencies
 RUN set -eux; \
@@ -70,13 +70,10 @@ USER root
 
 ARG FLUTTER_CHANNEL
 ARG FLUTTER_VERSION
-ARG ANDROID_PLATFORM_VERSION=31
+ARG ANDROID_PLATFORM_VERSION
 ARG ANDROID_BUILD_TOOLS_VERSION
 ARG ANDROID_SDK_TOOLS_VERSION
 ARG ANDROID_HOME
-
-# Copy android dependencies
-COPY --chown=flutter:flutter --from=build /build_android_dependencies/ /
 
 # Add enviroment variables
 ENV ANDROID_HOME=$ANDROID_HOME \
@@ -84,25 +81,17 @@ ENV ANDROID_HOME=$ANDROID_HOME \
     ANDROID_TOOLS_ROOT=$ANDROID_HOME \
     PATH="${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools"
 
+# Copy android dependencies
+COPY --chown=flutter:flutter --from=build /build_android_dependencies/ /
+
+#RUN mkdir -p /tmp && find / -xdev | sort > /tmp/before.txt
+
 # Init android dependency and utils
 RUN set -eux; apk add --no-cache openjdk11-jdk \
     && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/apk/* \
-      /usr/share/man/* /usr/share/doc \
-    #&& su flutter \
-    && yes | sdkmanager --sdk_root=${ANDROID_HOME} --licenses \
-    && sdkmanager --sdk_root=${ANDROID_HOME} --install "platform-tools"
-    # "extras;google;instantapps"
+      /usr/share/man/* /usr/share/doc
 
-# Prebuild app
-#RUN set -eux; flutter config --no-analytics --enable-android \
-#    && flutter precache --no-universal --android \
-#    && yes "y" | flutter doctor --android-licenses \
-#    && cd "${FLUTTER_ROOT}/examples/" \
-#    && flutter create --pub -a kotlin --project-name demo --platforms android,web -t app demo \
-#    && cd demo \
-#    && flutter pub upgrade --major-versions \
-#    && flutter build apk --release --pub --shrink --target-platform android-arm,android-arm64,android-x64 \
-#    && cd .. && rm -rf demo
+#RUN find / -xdev | sort > /tmp/after.txt
 
 # Add lables
 LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-android-base" \

@@ -2,6 +2,7 @@
 set -ex
 FLUTTER_CHANNEL="stable"
 docker build --no-cache --force-rm --squash --compress \
-    --file flutter_android_base.dockerfile \
+    --file ./dockerfiles/flutter_android_base.dockerfile \
     --build-arg FLUTTER_CHANNEL="${FLUTTER_CHANNEL}" \
     --tag "plugfox/flutter:${FLUTTER_CHANNEL}-android-base" .
+
