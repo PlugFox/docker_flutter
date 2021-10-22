@@ -3,7 +3,7 @@ name: Dispatch
 on: workflow_dispatch
 
 jobs:
-  push:
+  build_and_push:
     runs-on: ubuntu-latest
     
     steps:
