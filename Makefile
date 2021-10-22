@@ -16,7 +16,7 @@ build:
 ifdef FLUTTER_CHANNEL
 	@echo "BUILD FLUTTER CHANNEL $(FLUTTER_CHANNEL)"
 	docker build --no-cache --force-rm --compress \
-		 --file .\dockerfiles\flutter.dockerfile \
+		 --file ./dockerfiles/flutter.dockerfile \
 		 --build-arg FLUTTER_CHANNEL=$(FLUTTER_CHANNEL) \
 		 --tag plugfox/flutter:$(FLUTTER_CHANNEL) .
 	docker build --no-cache --force-rm --compress \
@@ -31,7 +31,7 @@ endif
 ifdef FLUTTER_VERSION
 	@echo "BUILD FLUTTER VERSION $(FLUTTER_VERSION)"
 	docker build --no-cache --force-rm --compress \
-		 --file .\dockerfiles\flutter.dockerfile \
+		 --file ./dockerfiles/flutter.dockerfile \
 		 --build-arg FLUTTER_VERSION=$(FLUTTER_VERSION) \
 		 --tag plugfox/flutter:$(FLUTTER_VERSION) .
 	docker build --no-cache --force-rm --compress \
