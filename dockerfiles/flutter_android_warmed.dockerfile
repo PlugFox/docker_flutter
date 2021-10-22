@@ -31,8 +31,9 @@ RUN set -eux; cd "${FLUTTER_HOME}/bin" \
     && yes "y" | flutter doctor --android-licenses \
     && flutter precache --universal --android \
     && flutter config --no-analytics --enable-android \
-    #&& sdkmanager --list > sdkmanager-list.txt \
-    && sdkmanager --sdk_root=${ANDROID_HOME} --install 'patcher;v4' 'emulator' 'platforms;android-30' 'build-tools;29.0.2' 'platform-tools' 'extras;google;instantapps'
+    && sdkmanager --sdk_root=${ANDROID_HOME} --install 'emulator' 'extras;google;instantapps' \
+    #&& sdkmanager --sdk_root=${ANDROID_HOME} --install 'platforms;android-30' 'build-tools;29.0.2'  \
+    && sdkmanager --list_installed > /home/sdkmanager-list-installed.txt
 
 # Сборка демо проекта
 #RUN set -eux; cd "/home/" \
