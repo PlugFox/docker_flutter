@@ -1,6 +1,6 @@
 -include *.mk
 
-.PHONY: all build push shell prune remove-all
+.PHONY: all build push shell prune
 
 all:
 	@echo Вы можете использовать: build, push, shell
@@ -75,19 +75,17 @@ ifdef FLUTTER_CHANNEL
 		plugfox/flutter:$(FLUTTER_CHANNEL)-android-warmed /bin/bash
 endif
 ifdef FLUTTER_VERSION
-	@docker run --rm -it -v ${PWD}:/build --workdir /build \
+	-docker run --rm -it -v ${PWD}:/build --workdir /build \
 		--user=root:root \
 		--name flutter_$(FLUTTER_VERSION)_android_warmed \
 		plugfox/flutter:$(FLUTTER_VERSION)-android-warmed /bin/bash
 endif
 
-# Очистить неиспользуемые образы
-# ВНИМАНИЕ, НЕ ТОЛЬКО ОБРАЗЫ ФЛАТЕРА, А ВООБЩЕ ВСЕ!
-prune:
-	@docker image prune -af
+# Авторизоваться
+login:
+	@docker login
 
-# Удалить вообще все образы
-# ВНИМАНИЕ, НЕ ТОЛЬКО ОБРАЗЫ ФЛАТЕРА, А ВООБЩЕ ВСЕ!
-remove-all: prune
-	@docker rmi $(docker images -q)
-	@docker rm -v $(docker ps -qa)
+# Очистить неиспользуемые образы с меткой
+# family=plugfox/flutter
+prune:
+	@docker image prune -af --filter "label=family=plugfox/flutter"

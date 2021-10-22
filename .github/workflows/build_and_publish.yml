@@ -19,7 +19,8 @@ jobs:
         run: make build FLUTTER_CHANNEL="stable"
         
       - name: ✨ Log into registry
-        run: echo "${{ secrets.DOCKER_LOGIN_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_LOGIN_USERNAME }} --password-stdin
+        run: @echo "${{ secrets.DOCKER_LOGIN_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_LOGIN_USERNAME }} --password-stdin
 
       - name: 🔥 Push images to registry
         run: make build FLUTTER_CHANNEL="stable"
+
