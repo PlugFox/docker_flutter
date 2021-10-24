@@ -1,12 +1,12 @@
 # ----------------------------------------------------------------------------------------
 #                                        Dockerfile
 # ----------------------------------------------------------------------------------------
-# image:       plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-android-base
+# image:       plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-android
 # repository:  https://github.com/plugfox/docker_flutter
 # license:     MIT
 # requires:
 # + alpine:latest
-# + plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-base
+# + plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}
 # authors:
 # + Plague Fox <PlugFox@gmail.com>
 # + Maria Melnik
@@ -94,7 +94,7 @@ RUN set -eux; apk add --no-cache openjdk11-jdk \
 #RUN find / -xdev | sort > /tmp/after.txt
 
 # Add lables
-LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-android-base" \
+LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-android" \
       description="Alpine with flutter & dart for android" \
       license="MIT" \
       vcs-type="git" \

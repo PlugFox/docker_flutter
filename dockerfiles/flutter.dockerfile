@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------------------
 #                                        Dockerfile
 # ----------------------------------------------------------------------------------------
-# image:       plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-base
+# image:       plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}
 # repository:  https://github.com/plugfox/docker_flutter
 # license:     MIT
 # requires:
@@ -127,7 +127,7 @@ RUN set -eux; apk --no-cache add bash git curl unzip  \
     && export BUILD_DATE=$(date +'%m/%d/%Y')
 
 # Add lables
-LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-base" \
+LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}" \
       description="Alpine with flutter & dart" \
       license="MIT" \
       vcs-type="git" \
