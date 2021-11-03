@@ -82,7 +82,7 @@ ENV ANDROID_HOME=$ANDROID_HOME \
     PATH="${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools"
 
 # Copy android dependencies
-COPY --chown=flutter:flutter --from=build /build_android_dependencies/ /
+COPY --chown=101:101 --from=build /build_android_dependencies/ /
 
 #RUN mkdir -p /tmp && find / -xdev | sort > /tmp/before.txt
 
