@@ -8,16 +8,19 @@ on:
 jobs:
   build_and_push:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
 
+      ##########################################
+      # DEPENDENCIES
       - name: ✨ Log into registry
         run: echo "${{ secrets.DOCKER_LOGIN_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_LOGIN_USERNAME }} --password-stdin
 
       - name: 🐈 Pull alpine:latest
         run: docker pull alpine:latest
 
+      ##########################################
+      # STABLE
       - name: 🏗️ Build stable images
         run: make build FLUTTER_CHANNEL="stable"
 
@@ -27,6 +30,8 @@ jobs:
       - name: 🗑️ Prune images
         run: make prune
 
+      ##########################################
+      # BETA
       - name: 🏗️ Build beta images
         run: make build FLUTTER_CHANNEL="beta"
 
@@ -36,15 +41,8 @@ jobs:
       - name: 🗑️ Prune images
         run: make prune
 
-      - name: 🏗️ Build dev images
-        run: make build FLUTTER_CHANNEL="dev"
-
-      - name: 🔥 Push dev images to registry
-        run: make push FLUTTER_CHANNEL="dev"
-
-      - name: 🗑️ Prune images
-        run: make prune
-
+      ##########################################
+      # MASTER
       - name: 🏗️ Build master images
         run: make build FLUTTER_CHANNEL="master"
 
