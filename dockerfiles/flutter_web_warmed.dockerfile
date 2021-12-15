@@ -8,6 +8,7 @@ FROM plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}
 RUN set -eux; \
     flutter upgrade; \
     flutter config --no-analytics --enable-web --no-enable-linux-desktop --no-enable-macos-desktop --no-enable-windows-desktop --no-enable-windows-uwp-desktop --no-enable-android --no-enable-ios --no-enable-fuchsia --no-enable-custom-devices ;\
+    dart --disable-analytics ;\
     flutter precache --no-ios --no-linux --no-windows --no-winuwp --no-macos --no-fuchsia --universal --web
 
 # Add lables
