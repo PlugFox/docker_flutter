@@ -21,10 +21,8 @@ FROM plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}
 # Setup flutter tools for web developement
 RUN set -eux; flutter upgrade \
     && dart --disable-analytics \
-    && flutter config --no-analytics --enable-web --no-enable-linux-desktop --no-enable-macos-desktop \
-                      --no-enable-windows-desktop --no-enable-windows-uwp-desktop --no-enable-android \
-                      --no-enable-ios --no-enable-fuchsia --no-enable-custom-devices \
-    && flutter precache --web --no-universal --no-ios --no-linux --no-windows --no-winuwp --no-macos --no-fuchsia
+    && flutter config --no-analytics --enable-web\
+    && flutter precache --universal --web
 
 # Add lables
 LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-web" \
