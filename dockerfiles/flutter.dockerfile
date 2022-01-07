@@ -10,15 +10,17 @@
 # + Plague Fox <PlugFox@gmail.com>
 # + Maria Melnik
 # + Dmitri Z <z-dima@live.ru>
+# + DoumanAsh <douman@gmx.se>
 # ----------------------------------------------------------------------------------------
 
 ARG FLUTTER_CHANNEL=""
 ARG FLUTTER_VERSION=""
 ARG FLUTTER_HOME="/opt/flutter"
 ARG PUB_CACHE="/var/tmp/.pub_cache"
-# "2.34-r0" - не работает на ubuntu, только на windows 10
+ARG FLUTTER_URL="https://github.com/flutter/flutter"
+# "2.34-r0" - does not properly work
 ARG GLIBC_VERSION="2.29-r0"
-ARG GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases/download"
+ARG GLIBC_URL="https://github.com/sgerrand/alpine-pkg-glibc"
 
 FROM alpine:latest as build
 
@@ -28,8 +30,9 @@ ARG FLUTTER_CHANNEL
 ARG FLUTTER_VERSION
 ARG FLUTTER_HOME
 ARG PUB_CACHE
+ARG FLUTTER_URL
 ARG GLIBC_VERSION
-ARG GLIBC_BASE_URL
+ARG GLIBC_URL
 
 WORKDIR /
 
@@ -49,9 +52,9 @@ RUN set -eux; mkdir -p /usr/lib /tmp/glibc $PUB_CACHE \
     && wget -q -O /etc/apk/keys/sgerrand.rsa.pub \
       https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub \
     && wget -O /tmp/glibc/glibc.apk \
-      ${GLIBC_BASE_URL}/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk \
+      ${GLIBC_URL}/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk \
     && wget -O /tmp/glibc/glibc-bin.apk \
-      ${GLIBC_BASE_URL}/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk \
+      ${GLIBC_URL}/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk \
     && rm -rf /var/lib/apt/lists/* /var/cache/apk/* \
     && echo "flutter:x:101:flutter" >> /etc/group \
     && echo "flutter:x:101:101:Flutter user,,,:/home:/sbin/nologin" >> /etc/passwd
@@ -61,9 +64,9 @@ RUN set -eux; mkdir -p /usr/lib /tmp/glibc $PUB_CACHE \
 # Install & config Flutter
 # Убрал --no-tags тк флатер не может получить текущую версию
 RUN set -eux; if [[ -z "$FLUTTER_VERSION" ]] ; then \
-        git clone -b ${FLUTTER_CHANNEL} --depth 1 https://github.com/flutter/flutter.git "${FLUTTER_ROOT}" ; \
+        git clone -b ${FLUTTER_CHANNEL} --depth 1 "${FLUTTER_URL}.git" "${FLUTTER_ROOT}" ; \
     else \
-        git clone -b ${FLUTTER_VERSION} --depth 1 https://github.com/flutter/flutter.git "${FLUTTER_ROOT}" ; \
+        git clone -b ${FLUTTER_VERSION} --depth 1 "${FLUTTER_URL}.git" "${FLUTTER_ROOT}" ; \
     fi \
         && cd "${FLUTTER_ROOT}" \
         && git gc --prune=all \
@@ -103,6 +106,9 @@ ARG FLUTTER_CHANNEL
 ARG FLUTTER_VERSION
 ARG FLUTTER_HOME
 ARG PUB_CACHE
+ARG FLUTTER_URL
+ARG GLIBC_VERSION
+ARG GLIBC_URL
 
 # Add enviroment variables
 ENV FLUTTER_HOME=$FLUTTER_HOME \
@@ -123,27 +129,30 @@ RUN set -eux; apk --no-cache add bash git curl unzip  \
     && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/apk/* \
               /usr/share/man/* /usr/share/doc \
     && git config --global user.email "plugfox@gmail.com" \
-    && git config --global user.name "Plague Fox" \
-    && export BUILD_DATE=$(date +'%m/%d/%Y')
+    && git config --global user.name "Plague Fox"
+
+#ENV BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 
 # Add lables
 LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}" \
-      description="Alpine with flutter & dart" \
+      description="Alpine OS with flutter & dart" \
       license="MIT" \
       vcs-type="git" \
       vcs-url="https://github.com/plugfox/docker_flutter" \
       github="https://github.com/plugfox/docker_flutter" \
       dockerhub="https://hub.docker.com/r/plugfox/flutter" \
       maintainer="Plague Fox <plugfox@gmail.com>" \
-      authors="@plugfox" \
+      authors="@PlugFox,@DoumanAsh,@MariaMelnik,@zs-dima" \
       user="flutter" \
       group="flutter" \
       family="plugfox/flutter" \
-      build_date="${BUILD_DATE}" \
+      glibc.version="${GLIBC_VERSION}" \
+      glibc.url="${GLIBC_URL}" \
       flutter.channel="${FLUTTER_CHANNEL}" \
       flutter.version="${FLUTTER_VERSION}" \
       flutter.home="${FLUTTER_HOME}" \
-      flutter.cache="${PUB_CACHE}"
+      flutter.cache="${PUB_CACHE}" \
+      flutter.url="${FLUTTER_URL}"
 
 # User by default
 USER flutter
