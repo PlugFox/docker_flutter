@@ -20,9 +20,9 @@ ifdef FLUTTER_CHANNEL
 		 --build-arg FLUTTER_CHANNEL=$(FLUTTER_CHANNEL) \
 		 --tag plugfox/flutter:$(FLUTTER_CHANNEL) .
 	docker build --no-cache --force-rm --compress \
-		 --file ./dockerfiles/flutter_web_warmed.dockerfile \
+		 --file ./dockerfiles/flutter_web.dockerfile \
 		 --build-arg FLUTTER_CHANNEL=$(FLUTTER_CHANNEL) \
-		 --tag plugfox/flutter:$(FLUTTER_CHANNEL)-web-warmed .
+		 --tag "plugfox/flutter:$(FLUTTER_CHANNEL)-web" .
 	docker build --no-cache --force-rm --compress \
 		 --file ./dockerfiles/flutter_android.dockerfile \
 		 --build-arg FLUTTER_CHANNEL=$(FLUTTER_CHANNEL) \
@@ -39,9 +39,9 @@ ifdef FLUTTER_VERSION
 		 --build-arg FLUTTER_VERSION=$(FLUTTER_VERSION) \
 		 --tag plugfox/flutter:$(FLUTTER_VERSION) .
 	docker build --no-cache --force-rm --compress \
-		 --file ./dockerfiles/flutter_web_warmed.dockerfile \
+		 --file ./dockerfiles/flutter_web.dockerfile \
 		 --build-arg FLUTTER_VERSION=$(FLUTTER_VERSION) \
-		 --tag plugfox/flutter:$(FLUTTER_VERSION)-web-warmed .
+		 --tag "plugfox/flutter:$(FLUTTER_VERSION)-web" .
 	docker build --no-cache --force-rm --compress \
 		 --file ./dockerfiles/flutter_android.dockerfile \
 		 --build-arg FLUTTER_VERSION=$(FLUTTER_VERSION) \
@@ -60,18 +60,17 @@ push:
 ifdef FLUTTER_CHANNEL
 	@echo "PUSH FLUTTER $(FLUTTER_CHANNEL)"
 	docker push plugfox/flutter:$(FLUTTER_CHANNEL)
-	docker push plugfox/flutter:$(FLUTTER_CHANNEL)-web-warmed
+	docker push plugfox/flutter:$(FLUTTER_CHANNEL)-web
 	docker push plugfox/flutter:$(FLUTTER_CHANNEL)-android
 	docker push plugfox/flutter:$(FLUTTER_CHANNEL)-android-warmed
 endif
 ifdef FLUTTER_VERSION
 	@echo "PUSH FLUTTER $(FLUTTER_VERSION)"
 	docker push plugfox/flutter:$(FLUTTER_VERSION)
-	docker push plugfox/flutter:$(FLUTTER_VERSION)-web-warmed
+	docker push plugfox/flutter:$(FLUTTER_VERSION)-web
 	docker push plugfox/flutter:$(FLUTTER_VERSION)-android
 	docker push plugfox/flutter:$(FLUTTER_VERSION)-android-warmed
 endif
-
 
 # Перейти в шелл образа
 # Запускается с аргументом FLUTTER_CHANNEL или FLUTTER_VERSION

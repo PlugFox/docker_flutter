@@ -6,11 +6,12 @@
 # license:     MIT
 # requires:
 # + alpine:latest
-# + plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}
+# + plugfox/flutter:<version>
 # authors:
 # + Plague Fox <PlugFox@gmail.com>
 # + Maria Melnik
 # + Dmitri Z <z-dima@live.ru>
+# + DoumanAsh <douman@gmx.se>
 # ----------------------------------------------------------------------------------------
 
 ARG FLUTTER_CHANNEL=""
@@ -96,12 +97,8 @@ RUN set -eux; apk add --no-cache openjdk11-jdk \
 # Add lables
 LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-android" \
       description="Alpine with flutter & dart for android" \
-      license="MIT" \
-      vcs-type="git" \
-      vcs-url="https://github.com/plugfox/docker_flutter" \
-      maintainer="Plague Fox <plugfox@gmail.com>" \
-      authors="@plugfox" \
-      user="flutter" \
+      flutter.channel="${FLUTTER_CHANNEL}" \
+      flutter.version="${FLUTTER_VERSION}" \
       android.version="${ANDROID_PLATFORM_VERSION}" \
       android.build_tools_version="${ANDROID_BUILD_TOOLS_VERSION}" \
       android.build_tools_version="${ANDROID_SDK_TOOLS_VERSION}" \
