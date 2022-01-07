@@ -30,7 +30,7 @@ RUN set -eux; cd "${FLUTTER_HOME}/bin" \
     && yes "y" | flutter doctor --android-licenses \
     && dart --disable-analytics \
     && flutter config --no-analytics --enable-android \
-    && flutter precache --no-universal --android \
+    && flutter precache --universal --android \
     && sdkmanager --sdk_root=${ANDROID_HOME} --install 'emulator' 'extras;google;instantapps' \
     #&& sdkmanager --sdk_root=${ANDROID_HOME} --install 'platforms;android-30' 'build-tools;29.0.2'  \
     && sdkmanager --list_installed > /home/sdkmanager-list-installed.txt
