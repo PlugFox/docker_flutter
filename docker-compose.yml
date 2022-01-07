@@ -14,9 +14,12 @@
 #   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-master-android-warmed
 #
 # HOW TO BUILD AND PUSH ALL:
-# docker compose -f ./docker-compose.yml build --compress --parallel flutter-stable flutter-beta flutter-master \
-#   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-stable-web flutter-stable-android flutter-beta-web flutter-beta-android flutter-master-web flutter-master-android \
-#   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-stable-android-warmed flutter-beta-android-warmed flutter-master-android-warmed \
+# docker compose -f ./docker-compose.yml build --compress --parallel \
+#     flutter-stable flutter-beta flutter-master \
+#   && docker compose -f ./docker-compose.yml build --compress --parallel \
+#     flutter-stable-web flutter-stable-android flutter-beta-web flutter-beta-android flutter-master-web flutter-master-android \
+#   && docker compose -f ./docker-compose.yml build --compress --parallel \
+#     flutter-stable-android-warmed flutter-beta-android-warmed flutter-master-android-warmed \
 #   && docker compose push
 
 version: "3.9"
