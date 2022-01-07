@@ -1,0 +1,129 @@
+# HOW TO BUILD STABLE:
+# docker compose -f ./docker-compose.yml build --compress --parallel flutter-stable \
+#   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-stable-web flutter-stable-android \
+#   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-stable-android-warmed
+#
+# HOW TO BUILD BETA:
+# docker compose -f ./docker-compose.yml build --compress --parallel flutter-beta \
+#   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-beta-web flutter-beta-android \
+#   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-beta-android-warmed
+#
+# HOW TO BUILD MASTER:
+# docker compose -f ./docker-compose.yml build --compress --parallel flutter-master \
+#   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-master-web flutter-master-android \
+#   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-master-android-warmed
+#
+# HOW TO BUILD AND PUSH ALL:
+# docker compose -f ./docker-compose.yml build --compress --parallel flutter-stable flutter-beta flutter-master \
+#   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-stable-web flutter-stable-android flutter-beta-web flutter-beta-android flutter-master-web flutter-master-android \
+#   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-stable-android-warmed flutter-beta-android-warmed flutter-master-android-warmed \
+#   && docker compose push
+
+version: "3.9"
+
+services:
+
+  #############################################################
+  # STABLE
+
+  flutter-stable:
+    image: plugfox/flutter:stable
+    build:
+      dockerfile: dockerfiles/flutter.dockerfile
+      context: .
+      args:
+        - FLUTTER_CHANNEL=stable
+
+  flutter-stable-web:
+    image: plugfox/flutter:stable-web
+    build:
+      dockerfile: dockerfiles/flutter_web.dockerfile
+      context: .
+      args:
+        - FLUTTER_CHANNEL=stable
+
+  flutter-stable-android:
+    image: plugfox/flutter:stable-android
+    build:
+      dockerfile: dockerfiles/flutter_android.dockerfile
+      context: .
+      args:
+        - FLUTTER_CHANNEL=stable
+
+  flutter-stable-android-warmed:
+    image: plugfox/flutter:stable-android-warmed
+    build:
+      dockerfile: dockerfiles/flutter_android_warmed.dockerfile
+      context: .
+      args:
+        - FLUTTER_CHANNEL=stable
+
+  #############################################################
+  # BETA
+
+  flutter-beta:
+    image: plugfox/flutter:beta
+    build:
+      dockerfile: dockerfiles/flutter.dockerfile
+      context: .
+      args:
+        - FLUTTER_CHANNEL=beta
+
+  flutter-beta-web:
+    image: plugfox/flutter:beta-web
+    build:
+      dockerfile: dockerfiles/flutter_web.dockerfile
+      context: .
+      args:
+        - FLUTTER_CHANNEL=beta
+
+  flutter-beta-android:
+    image: plugfox/flutter:beta-android
+    build:
+      dockerfile: dockerfiles/flutter_android.dockerfile
+      context: .
+      args:
+        - FLUTTER_CHANNEL=beta
+
+  flutter-beta-android-warmed:
+    image: plugfox/flutter:beta-android-warmed
+    build:
+      dockerfile: dockerfiles/flutter_android_warmed.dockerfile
+      context: .
+      args:
+        - FLUTTER_CHANNEL=beta
+
+  #############################################################
+  # MASTER
+
+  flutter-master:
+    image: plugfox/flutter:master
+    build:
+      dockerfile: dockerfiles/flutter.dockerfile
+      context: .
+      args:
+        - FLUTTER_CHANNEL=master
+
+  flutter-master-web:
+    image: plugfox/flutter:master-web
+    build:
+      dockerfile: dockerfiles/flutter_web.dockerfile
+      context: .
+      args:
+        - FLUTTER_CHANNEL=master
+
+  flutter-master-android:
+    image: plugfox/flutter:master-android
+    build:
+      dockerfile: dockerfiles/flutter_android.dockerfile
+      context: .
+      args:
+        - FLUTTER_CHANNEL=master
+
+  flutter-master-android-warmed:
+    image: plugfox/flutter:master-android-warmed
+    build:
+      dockerfile: dockerfiles/flutter_android_warmed.dockerfile
+      context: .
+      args:
+        - FLUTTER_CHANNEL=master

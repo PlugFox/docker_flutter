@@ -20,35 +20,23 @@ jobs:
         run: docker pull alpine:latest
 
       ##########################################
-      # STABLE
-      - name: 🏗️ Build stable images
-        run: make build FLUTTER_CHANNEL="stable"
-
-      - name: 🔥 Push stable images to registry
-        run: make push FLUTTER_CHANNEL="stable"
-
-      - name: 🗑️ Prune images
-        run: make prune
-
-      ##########################################
-      # BETA
-      - name: 🏗️ Build beta images
-        run: make build FLUTTER_CHANNEL="beta"
-
-      - name: 🔥 Push beta images to registry
-        run: make push FLUTTER_CHANNEL="beta"
-
-      - name: 🗑️ Prune images
-        run: make prune
+      # BUILD
+      - name: 🏗️ Build all channels
+        run: |
+          docker compose -f ./docker-compose.yml build --compress --parallel \
+              flutter-stable flutter-beta flutter-master \
+            && docker compose -f ./docker-compose.yml build --compress --parallel \
+              flutter-stable-web flutter-stable-android flutter-beta-web flutter-beta-android flutter-master-web flutter-master-android \
+            && docker compose -f ./docker-compose.yml build --compress --parallel \
+              flutter-stable-android-warmed flutter-beta-android-warmed flutter-master-android-warmed
 
       ##########################################
-      # MASTER
-      - name: 🏗️ Build master images
-        run: make build FLUTTER_CHANNEL="master"
+      # DEPLOY
+      - name: 🔥 Deploy to Docker Hub
+        run: docker compose -f ./docker-compose.yml push
 
-      - name: 🔥 Push master images to registry
-        run: make push FLUTTER_CHANNEL="master"
-
+      ##########################################
+      # PRUNE ALL
       - name: 🗑️ Prune images
         run: make prune
 
