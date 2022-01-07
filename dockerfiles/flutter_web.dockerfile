@@ -19,9 +19,8 @@ ARG FLUTTER_VERSION
 FROM plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}
 
 # Setup flutter tools for web developement
-RUN set -eux; flutter upgrade \
-    && dart --disable-analytics \
-    && flutter config --no-analytics --enable-web\
+RUN set -eux; dart --disable-analytics \
+    && flutter config --no-analytics --enable-web \
     && flutter precache --universal --web
 
 # Add lables
