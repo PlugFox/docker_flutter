@@ -16,10 +16,8 @@
 
 ARG FLUTTER_CHANNEL=""
 ARG FLUTTER_VERSION=""
-ARG ANDROID_PLATFORM_VERSION=31
-ARG ANDROID_BUILD_TOOLS_VERSION=31.0.0
 # ANDROID_SDK_TOOLS_VERSION Comes from https://developer.android.com/studio/#command-tools
-ARG ANDROID_SDK_TOOLS_VERSION=7583922
+ARG ANDROID_SDK_TOOLS_VERSION=8092744
 ARG ANDROID_HOME="/opt/android"
 
 FROM alpine:latest as build
@@ -27,7 +25,6 @@ FROM alpine:latest as build
 USER root
 
 ARG ANDROID_PLATFORM_VERSION
-ARG ANDROID_BUILD_TOOLS_VERSION
 ARG ANDROID_SDK_TOOLS_VERSION
 ARG ANDROID_HOME
 
@@ -71,8 +68,6 @@ USER root
 
 ARG FLUTTER_CHANNEL
 ARG FLUTTER_VERSION
-ARG ANDROID_PLATFORM_VERSION
-ARG ANDROID_BUILD_TOOLS_VERSION
 ARG ANDROID_SDK_TOOLS_VERSION
 ARG ANDROID_HOME
 
@@ -99,9 +94,6 @@ LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-android" \
       description="Alpine with flutter & dart for android" \
       flutter.channel="${FLUTTER_CHANNEL}" \
       flutter.version="${FLUTTER_VERSION}" \
-      android.version="${ANDROID_PLATFORM_VERSION}" \
-      android.build_tools_version="${ANDROID_BUILD_TOOLS_VERSION}" \
-      android.build_tools_version="${ANDROID_SDK_TOOLS_VERSION}" \
       android.home="${ANDROID_HOME}"
 
 # User by default
