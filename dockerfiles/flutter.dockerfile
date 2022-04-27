@@ -127,10 +127,10 @@ RUN set -eux; apk --no-cache add bash git curl unzip  \
                             /tmp/glibc/glibc.apk \
                             /tmp/glibc/glibc-bin.apk \
     && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/apk/* \
-              /usr/share/man/* /usr/share/doc \
-    && git config --global user.email "flutter@dart.dev" \
-    && git config --global user.name "Flutter" \
-    && git config --global --add safe.directory /opt/flutter
+              /usr/share/man/* /usr/share/doc
+    #&& git config --global user.email "flutter@dart.dev" \
+    #&& git config --global user.name "Flutter" \
+    #&& git config --global --add safe.directory /opt/flutter
 
 #ENV BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 
