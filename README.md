@@ -11,3 +11,7 @@ Rolling release update strategy at every monday.
 + PUB_CACHE    = "/var/tmp/.pub_cache"
 + ANDROID_HOME = "/opt/android"  
   
+### Using image as non-flutter user
+
+Due to [git bug](https://github.blog/2022-04-12-git-security-vulnerability-announced/) it is no longer possible to execute flutter commands unless you're `flutter` user as underlying installation `/opt/flutter` is owned by this user.
+Either add exception (`git config --global --add safe.directory /opt/flutter`) or perform all image build steps relying on `flutter` as `flutter` user
