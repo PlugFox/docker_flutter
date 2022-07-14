@@ -8,8 +8,8 @@ all:
 	@echo make push  FLUTTER_CHANNEL="stable"
 	@echo make shell FLUTTER_CHANNEL="stable"
 
-# Собрать образы соответсвующего канала или версии
-# Запускается с аргументом FLUTTER_CHANNEL или FLUTTER_VERSION
+# Build images for channel or version
+# Running with argument FLUTTER_CHANNEL or FLUTTER_VERSION
 # make build FLUTTER_CHANNEL="<КАНАЛ>" e.g. make build FLUTTER_CHANNEL="stable"
 # make build FLUTTER_VERSION="<ВЕРСИЯ>" e.g. make build FLUTTER_VERSION="2.5.3"
 build:
@@ -52,8 +52,8 @@ ifdef FLUTTER_VERSION
 		 --tag "plugfox/flutter:$(FLUTTER_VERSION)-android-warmed" .
 endif
 
-# Отправить собраные образы
-# Запускается с аргументом FLUTTER_CHANNEL или FLUTTER_VERSION
+# Push image
+# Running with argument FLUTTER_CHANNEL or FLUTTER_VERSION
 # make push FLUTTER_CHANNEL="<КАНАЛ>" e.g. make push FLUTTER_CHANNEL="stable"
 # make push FLUTTER_VERSION="<ВЕРСИЯ>" e.g. make push FLUTTER_VERSION="2.5.3"
 push:
@@ -72,8 +72,8 @@ ifdef FLUTTER_VERSION
 	@docker push plugfox/flutter:$(FLUTTER_VERSION)-android-warmed
 endif
 
-# Перейти в шелл образа
-# Запускается с аргументом FLUTTER_CHANNEL или FLUTTER_VERSION
+# Get root
+# Running with argument FLUTTER_CHANNEL or FLUTTER_VERSION
 # make shell FLUTTER_CHANNEL="<КАНАЛ>" e.g. make shell FLUTTER_CHANNEL="stable"
 # make shell FLUTTER_VERSION="<ВЕРСИЯ>" e.g. make shell FLUTTER_VERSION="2.5.3"
 shell:
@@ -90,17 +90,17 @@ ifdef FLUTTER_VERSION
 		plugfox/flutter:$(FLUTTER_VERSION)-android-warmed /bin/bash
 endif
 
-# Авторизоваться
+# Authentication at docker registry
 login:
 	@docker login
 
-# Очистить неиспользуемые образы с меткой
+# Clear all
 # family=plugfox/flutter
 prune:
 	@docker image prune -af --filter "label=family=plugfox/flutter"
 
-# Просканировать образ на наличие уязвимостей
-# Запускается с аргументом FLUTTER_CHANNEL или FLUTTER_VERSION
+# Scan images
+# Running with argument FLUTTER_CHANNEL or FLUTTER_VERSION
 # make scan FLUTTER_CHANNEL="<КАНАЛ>" e.g. make scan FLUTTER_CHANNEL="stable"
 # make scan FLUTTER_VERSION="<ВЕРСИЯ>" e.g. make scan FLUTTER_VERSION="2.5.3"
 scan:
@@ -111,8 +111,8 @@ ifdef FLUTTER_VERSION
 	@docker scan plugfox/flutter:$(FLUTTER_VERSION)-android-warmed
 endif
 
-# Проверить сборку
-# Запускается с аргументом FLUTTER_CHANNEL или FLUTTER_VERSION
+# Check image
+# Running with argument FLUTTER_CHANNEL or FLUTTER_VERSION
 # make demo FLUTTER_CHANNEL="<КАНАЛ>" e.g. make demo FLUTTER_CHANNEL="stable"
 # make demo FLUTTER_VERSION="<ВЕРСИЯ>" e.g. make demo FLUTTER_VERSION="2.5.3"
 demo:
