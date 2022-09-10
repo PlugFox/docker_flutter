@@ -4,15 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Flutter version from https://github.com/flutter/flutter/tags'
+        description: "Flutter version from https://github.com/flutter/flutter/tags"
         required: true
 
 jobs:
   build_and_push:
+    name: "Build and push"
     runs-on: ubuntu-latest
-
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v2
+      - name: 🚂 Get latest code
+        uses: actions/checkout@v2
 
       - name: ✨ Log into registry
         run: echo "${{ secrets.DOCKER_LOGIN_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_LOGIN_USERNAME }} --password-stdin
@@ -21,11 +23,10 @@ jobs:
         run: docker pull alpine:latest
 
       - name: 🏗️ Build images
-        run: make build FLUTTER_VERSION="${{ github.event.inputs.version }}"
+        run: make build VERSION="${{ github.event.inputs.version }}"
 
       - name: 🔥 Push images to registry
-        run: make push FLUTTER_VERSION="${{ github.event.inputs.version }}"
+        run: make push VERSION="${{ github.event.inputs.version }}"
 
       - name: 🗑️ Prune images
         run: make prune
-

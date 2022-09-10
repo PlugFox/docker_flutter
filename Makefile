@@ -1,9 +1,15 @@
 .PHONY: help
 
 help:
-	@echo You can user commands: build, push, shell
-	@echo make build FLUTTER_CHANNEL="stable"
-	@echo make push  FLUTTER_CHANNEL="stable"
-	@echo make shell FLUTTER_CHANNEL="stable"
+	@echo --- user commands:
+	@echo - make build VERSION="stable"
+	@echo - make push  VERSION="stable"
+	@echo - make shell VERSION="stable"
+	@echo
+	@echo --- environment info:
+	@echo - operating system: $(OS)
+	@echo - glibc path: $(GLIBC)
+	@echo - glibc-bin path: $(GLIBC_BIN)
+	@echo
 
--include tool/makefile/*.mk
+-include tools/makefile/*.mk

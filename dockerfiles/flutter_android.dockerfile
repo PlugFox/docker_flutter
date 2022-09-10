@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------------------
 #                                        Dockerfile
 # ----------------------------------------------------------------------------------------
-# image:       plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-android
+# image:       plugfox/flutter:${VERSION}-android
 # repository:  https://github.com/plugfox/docker_flutter
 # license:     MIT
 # requires:
@@ -14,10 +14,9 @@
 # + DoumanAsh <douman@gmx.se>
 # ----------------------------------------------------------------------------------------
 
-ARG FLUTTER_CHANNEL=""
-ARG FLUTTER_VERSION=""
+ARG VERSION="stable"
 # ANDROID_SDK_TOOLS_VERSION Comes from https://developer.android.com/studio/#command-tools
-ARG ANDROID_SDK_TOOLS_VERSION=8092744
+ARG ANDROID_SDK_TOOLS_VERSION=8512546
 ARG ANDROID_HOME="/opt/android"
 
 FROM alpine:latest as build
@@ -48,26 +47,26 @@ RUN set -eux; wget -q https://dl.google.com/android/repository/commandlinetools-
     && touch /root/.android/repositories.cfg \
     && yes | sdkmanager --sdk_root=${ANDROID_HOME} --licenses \
     && sdkmanager --sdk_root=${ANDROID_HOME} --install "platform-tools" \
+    #&& yes | flutter doctor --android-licenses \
     && cd / && mv /root /home/
 
 # Create android dependencies
 RUN set -eux; \
     for f in \
-        ${ANDROID_HOME} \
-        /home \
+    ${ANDROID_HOME} \
+    /home \
     ; do \
-        dir="$(dirname "$f")"; \
-        mkdir -p "/build_android_dependencies$dir"; \
-        cp --archive --link --dereference --no-target-directory "$f" "/build_android_dependencies$f"; \
+    dir="$(dirname "$f")"; \
+    mkdir -p "/build_android_dependencies$dir"; \
+    cp --archive --link --dereference --no-target-directory "$f" "/build_android_dependencies$f"; \
     done
 
 # Create new clear layer
-FROM plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION} as production
+FROM plugfox/flutter:${VERSION} as production
 
 USER root
 
-ARG FLUTTER_CHANNEL
-ARG FLUTTER_VERSION
+ARG VERSION
 ARG ANDROID_SDK_TOOLS_VERSION
 ARG ANDROID_HOME
 
@@ -85,21 +84,36 @@ COPY --chown=101:101 --from=build /build_android_dependencies/ /
 # Init android dependency and utils
 RUN set -eux; apk add --no-cache openjdk11-jdk \
     && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/apk/* \
-      /usr/share/man/* /usr/share/doc
+    /usr/share/man/* /usr/share/doc \
+    cd "${FLUTTER_HOME}/bin" \
+    && yes "y" | flutter doctor --android-licenses \
+    && dart --disable-analytics \
+    && flutter config --no-analytics --enable-android \
+    && flutter precache --universal --android \
+    && sdkmanager --sdk_root=${ANDROID_HOME} --install 'emulator' 'extras;google;instantapps' \
+    #&& sdkmanager --sdk_root=${ANDROID_HOME} --install 'platforms;android-30' 'platforms;android-31' 'build-tools;29.0.2'  \
+    && sdkmanager --list_installed > /root/sdkmanager-list-installed.txt
 
-#RUN find / -xdev | sort > /tmp/after.txt
+# Build demo project
+#RUN set -eux; cd "/home/" \
+#    && flutter create --pub -a kotlin --project-name warmup --platforms android -t app warmup \
+#    && cd warmup \
+#    && flutter pub get \
+#    && flutter pub upgrade --major-versions \
+#    && flutter build apk --release --pub --shrink --target-platform android-arm,android-arm64,android-x64 \
+#    && cd .. && rm -rf warmup
+
+#RUN cd / && find / -xdev | sort > /tmp/after.txt
 
 # Add lables
-LABEL name="plugfox/flutter:${FLUTTER_CHANNEL}${FLUTTER_VERSION}-android" \
-      description="Alpine with flutter & dart for android" \
-      flutter.channel="${FLUTTER_CHANNEL}" \
-      flutter.version="${FLUTTER_VERSION}" \
-      android.home="${ANDROID_HOME}"
+LABEL name="plugfox/flutter:${VERSION}-android" \
+    description="Alpine with flutter & dart for android" \
+    flutter.channel="${VERSION}" \
+    flutter.version="${VERSION}" \
+    android.home="${ANDROID_HOME}"
 
-# User by default
-USER flutter
+# By default
+USER root
 WORKDIR /home
 SHELL [ "/bin/bash", "-c" ]
-
-# Default command
 CMD [ "flutter", "doctor" ]
