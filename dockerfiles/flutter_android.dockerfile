@@ -46,15 +46,13 @@ RUN set -eux; wget -q https://dl.google.com/android/repository/commandlinetools-
     && rm -rf /tmp/* \
     && touch /root/.android/repositories.cfg \
     && yes | sdkmanager --sdk_root=${ANDROID_HOME} --licenses \
-    && sdkmanager --sdk_root=${ANDROID_HOME} --install "platform-tools" \
-    #&& yes | flutter doctor --android-licenses \
-    && cd / && mv /root /home/
+    && sdkmanager --sdk_root=${ANDROID_HOME} --install "platform-tools"
 
 # Create android dependencies
 RUN set -eux; \
     for f in \
     ${ANDROID_HOME} \
-    /home \
+    /root \
     ; do \
     dir="$(dirname "$f")"; \
     mkdir -p "/build_android_dependencies$dir"; \
@@ -63,8 +61,6 @@ RUN set -eux; \
 
 # Create new clear layer
 FROM plugfox/flutter:${VERSION} as production
-
-USER root
 
 ARG VERSION
 ARG ANDROID_SDK_TOOLS_VERSION
@@ -77,7 +73,7 @@ ENV ANDROID_HOME=$ANDROID_HOME \
     PATH="${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools"
 
 # Copy android dependencies
-COPY --chown=101:101 --from=build /build_android_dependencies/ /
+COPY --from=build /build_android_dependencies/ /
 
 #RUN mkdir -p /tmp && find / -xdev | sort > /tmp/before.txt
 
@@ -85,13 +81,13 @@ COPY --chown=101:101 --from=build /build_android_dependencies/ /
 RUN set -eux; apk add --no-cache openjdk11-jdk \
     && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/apk/* \
     /usr/share/man/* /usr/share/doc \
-    cd "${FLUTTER_HOME}/bin" \
+    && cd "${FLUTTER_HOME}/bin" \
     && yes "y" | flutter doctor --android-licenses \
     && dart --disable-analytics \
     && flutter config --no-analytics --enable-android \
     && flutter precache --universal --android \
-    && sdkmanager --sdk_root=${ANDROID_HOME} --install 'emulator' 'extras;google;instantapps' \
-    #&& sdkmanager --sdk_root=${ANDROID_HOME} --install 'platforms;android-30' 'platforms;android-31' 'build-tools;29.0.2'  \
+    && sdkmanager --sdk_root=${ANDROID_HOME} --install "platform-tools" "emulator" "extras;google;instantapps" \
+    && sdkmanager --sdk_root=${ANDROID_HOME} --install "platforms;android-30" "platforms;android-31" "build-tools;29.0.2"  \
     && sdkmanager --list_installed > /root/sdkmanager-list-installed.txt
 
 # Build demo project
@@ -114,6 +110,6 @@ LABEL name="plugfox/flutter:${VERSION}-android" \
 
 # By default
 USER root
-WORKDIR /home
+WORKDIR /build
 SHELL [ "/bin/bash", "-c" ]
 CMD [ "flutter", "doctor" ]

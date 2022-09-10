@@ -9,11 +9,11 @@ build:
 		 --file ./dockerfiles/flutter.dockerfile \
 		 --build-arg VERSION=$(VERSION) \
 		 --tag plugfox/flutter:$(VERSION) .
-	@docker build --no-cache --force-rm --compress \
+	@docker build --compress \
 		 --file ./dockerfiles/flutter_web.dockerfile \
 		 --build-arg VERSION=$(VERSION) \
 		 --tag "plugfox/flutter:$(VERSION)-web" .
-	@docker build --no-cache --force-rm --compress \
+	@docker build --compress \
 		 --file ./dockerfiles/flutter_android.dockerfile \
 		 --build-arg VERSION=$(VERSION) \
 		 --tag "plugfox/flutter:$(VERSION)-android" .
