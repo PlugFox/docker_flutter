@@ -1,25 +1,20 @@
 # HOW TO BUILD STABLE:
 # docker compose -f ./docker-compose.yml build --compress --parallel flutter-stable \
-#   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-stable-web flutter-stable-android \
-#   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-stable-android-warmed
+#   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-stable-web flutter-stable-android
 #
 # HOW TO BUILD BETA:
 # docker compose -f ./docker-compose.yml build --compress --parallel flutter-beta \
-#   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-beta-web flutter-beta-android \
-#   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-beta-android-warmed
+#   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-beta-web flutter-beta-android
 #
 # HOW TO BUILD MASTER:
 # docker compose -f ./docker-compose.yml build --compress --parallel flutter-master \
-#   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-master-web flutter-master-android \
-#   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-master-android-warmed
+#   && docker compose -f ./docker-compose.yml build --compress --parallel flutter-master-web flutter-master-android
 #
 # HOW TO BUILD AND PUSH ALL:
 # docker compose -f ./docker-compose.yml build --compress --parallel \
 #     flutter-stable flutter-beta flutter-master \
 #   && docker compose -f ./docker-compose.yml build --compress --parallel \
 #     flutter-stable-web flutter-stable-android flutter-beta-web flutter-beta-android flutter-master-web flutter-master-android \
-#   && docker compose -f ./docker-compose.yml build --compress --parallel \
-#     flutter-stable-android-warmed flutter-beta-android-warmed flutter-master-android-warmed \
 #   && docker compose push
 
 version: "3.9"
@@ -35,7 +30,7 @@ services:
       dockerfile: dockerfiles/flutter.dockerfile
       context: .
       args:
-        - FLUTTER_CHANNEL=stable
+        - VERSION=stable
 
   flutter-stable-web:
     image: plugfox/flutter:stable-web
@@ -43,7 +38,7 @@ services:
       dockerfile: dockerfiles/flutter_web.dockerfile
       context: .
       args:
-        - FLUTTER_CHANNEL=stable
+        - VERSION=stable
 
   flutter-stable-android:
     image: plugfox/flutter:stable-android
@@ -51,15 +46,7 @@ services:
       dockerfile: dockerfiles/flutter_android.dockerfile
       context: .
       args:
-        - FLUTTER_CHANNEL=stable
-
-  flutter-stable-android-warmed:
-    image: plugfox/flutter:stable-android-warmed
-    build:
-      dockerfile: dockerfiles/flutter_android_warmed.dockerfile
-      context: .
-      args:
-        - FLUTTER_CHANNEL=stable
+        - VERSION=stable
 
   #############################################################
   # BETA
@@ -70,7 +57,7 @@ services:
       dockerfile: dockerfiles/flutter.dockerfile
       context: .
       args:
-        - FLUTTER_CHANNEL=beta
+        - VERSION=beta
 
   flutter-beta-web:
     image: plugfox/flutter:beta-web
@@ -78,7 +65,7 @@ services:
       dockerfile: dockerfiles/flutter_web.dockerfile
       context: .
       args:
-        - FLUTTER_CHANNEL=beta
+        - VERSION=beta
 
   flutter-beta-android:
     image: plugfox/flutter:beta-android
@@ -86,15 +73,7 @@ services:
       dockerfile: dockerfiles/flutter_android.dockerfile
       context: .
       args:
-        - FLUTTER_CHANNEL=beta
-
-  flutter-beta-android-warmed:
-    image: plugfox/flutter:beta-android-warmed
-    build:
-      dockerfile: dockerfiles/flutter_android_warmed.dockerfile
-      context: .
-      args:
-        - FLUTTER_CHANNEL=beta
+        - VERSION=beta
 
   #############################################################
   # MASTER
@@ -105,7 +84,7 @@ services:
       dockerfile: dockerfiles/flutter.dockerfile
       context: .
       args:
-        - FLUTTER_CHANNEL=master
+        - VERSION=master
 
   flutter-master-web:
     image: plugfox/flutter:master-web
@@ -113,7 +92,7 @@ services:
       dockerfile: dockerfiles/flutter_web.dockerfile
       context: .
       args:
-        - FLUTTER_CHANNEL=master
+        - VERSION=master
 
   flutter-master-android:
     image: plugfox/flutter:master-android
@@ -121,12 +100,4 @@ services:
       dockerfile: dockerfiles/flutter_android.dockerfile
       context: .
       args:
-        - FLUTTER_CHANNEL=master
-
-  flutter-master-android-warmed:
-    image: plugfox/flutter:master-android-warmed
-    build:
-      dockerfile: dockerfiles/flutter_android_warmed.dockerfile
-      context: .
-      args:
-        - FLUTTER_CHANNEL=master
+        - VERSION=master
