@@ -87,7 +87,7 @@ RUN set -eux; apk add --no-cache openjdk11-jdk \
     && flutter config --no-analytics --enable-android \
     && flutter precache --universal --android \
     && sdkmanager --sdk_root=${ANDROID_HOME} --install "platform-tools" "emulator" "extras;google;instantapps" \
-    && sdkmanager --sdk_root=${ANDROID_HOME} --install "platforms;android-30" "platforms;android-31" "build-tools;29.0.2"  \
+    && sdkmanager --sdk_root=${ANDROID_HOME} --install "platforms;android-31" "platforms;android-32" "build-tools;29.0.2"  \
     && sdkmanager --list_installed > /root/sdkmanager-list-installed.txt
 
 # Build demo project
