@@ -109,7 +109,7 @@ COPY --from=build /build_dependencies/ /
 
 # Install linux dependency and utils
 RUN set -eux; mkdir -p /build; apk --no-cache add bash git curl unzip  \
-    /tmp/glibc/glibc.apk /tmp/glibc/glibc-bin.apk \
+    && apk --no-cache add --force-overwrite /tmp/glibc/glibc.apk /tmp/glibc/glibc-bin.apk \
     -u alpine-keys --allow-untrusted \
     && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/apk/* \
     /usr/share/man/* /usr/share/doc \
