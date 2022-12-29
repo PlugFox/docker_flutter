@@ -25,7 +25,7 @@ services:
   # STABLE
 
   flutter-stable:
-    image: plugfox/flutter:stable
+    image: michaellazebny/flutter:stable
     build:
       dockerfile: dockerfiles/flutter.dockerfile
       context: .
@@ -33,7 +33,7 @@ services:
         - VERSION=stable
 
   flutter-stable-web:
-    image: plugfox/flutter:stable-web
+    image: michaellazebny/flutter:stable-web
     build:
       dockerfile: dockerfiles/flutter_web.dockerfile
       context: .
@@ -41,7 +41,7 @@ services:
         - VERSION=stable
 
   flutter-stable-android:
-    image: plugfox/flutter:stable-android
+    image: michaellazebny/flutter:stable-android
     build:
       dockerfile: dockerfiles/flutter_android.dockerfile
       context: .
@@ -52,7 +52,7 @@ services:
   # BETA
 
   flutter-beta:
-    image: plugfox/flutter:beta
+    image: michaellazebny/flutter:beta
     build:
       dockerfile: dockerfiles/flutter.dockerfile
       context: .
@@ -60,7 +60,7 @@ services:
         - VERSION=beta
 
   flutter-beta-web:
-    image: plugfox/flutter:beta-web
+    image: michaellazebny/flutter:beta-web
     build:
       dockerfile: dockerfiles/flutter_web.dockerfile
       context: .
@@ -68,7 +68,7 @@ services:
         - VERSION=beta
 
   flutter-beta-android:
-    image: plugfox/flutter:beta-android
+    image: michaellazebny/flutter:beta-android
     build:
       dockerfile: dockerfiles/flutter_android.dockerfile
       context: .
@@ -79,7 +79,7 @@ services:
   # MASTER
 
   flutter-master:
-    image: plugfox/flutter:master
+    image: michaellazebny/flutter:master
     build:
       dockerfile: dockerfiles/flutter.dockerfile
       context: .
@@ -87,7 +87,7 @@ services:
         - VERSION=master
 
   flutter-master-web:
-    image: plugfox/flutter:master-web
+    image: michaellazebny/flutter:master-web
     build:
       dockerfile: dockerfiles/flutter_web.dockerfile
       context: .
@@ -95,7 +95,7 @@ services:
         - VERSION=master
 
   flutter-master-android:
-    image: plugfox/flutter:master-android
+    image: michaellazebny/flutter:master-android
     build:
       dockerfile: dockerfiles/flutter_android.dockerfile
       context: .
