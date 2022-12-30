@@ -116,9 +116,9 @@ RUN set -eux; mkdir -p /build; apk --no-cache add bash git curl unzip  \
     && dart --disable-analytics && flutter config --no-analytics \
     && flutter doctor && flutter precache --universal
 
-#RUN set -eux; git config --global user.email "flutter@dart.dev" \
-#&& git config --global user.name "Flutter" \
-#&& git config --global --add safe.directory /opt/flutter
+RUN set -eux; git config --global user.email "flutter@dart.dev" \
+&& git config --global user.name "Flutter" \
+&& git config --global --add safe.directory /opt/flutter
 
 #ENV BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 
