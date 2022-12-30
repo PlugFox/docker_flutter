@@ -44,7 +44,7 @@ RUN set -eux; mkdir -p /usr/lib /tmp/glibc $PUB_CACHE \
     && rm -rf /var/lib/apt/lists/* /var/cache/apk/*
 
 # Install & config Flutter
-RUN set -eux; git clone -b ${VERSION} --depth 1 "${FLUTTER_URL}.git" "${FLUTTER_ROOT}" \
+RUN set -eux; git clone -b ${VERSION} "${FLUTTER_URL}.git" "${FLUTTER_ROOT}" \
     && cd "${FLUTTER_ROOT}" \
     && git gc --prune=all
 
@@ -117,8 +117,8 @@ RUN set -eux; mkdir -p /build; apk --no-cache add bash git curl unzip  \
     && flutter doctor && flutter precache --universal
 
 RUN set -eux; git config --global user.email "flutter@dart.dev" \
-&& git config --global user.name "Flutter" \
-&& git config --global --add safe.directory /opt/flutter
+    && git config --global user.name "Flutter" \
+    && git config --global --add safe.directory /opt/flutter
 
 #ENV BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 
