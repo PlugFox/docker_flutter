@@ -44,7 +44,7 @@ RUN set -eux; mkdir -p /usr/lib /tmp/glibc $PUB_CACHE \
     && rm -rf /var/lib/apt/lists/* /var/cache/apk/*
 
 # Install & config Flutter
-RUN set -eux; git clone -b ${VERSION} --depth 1 "${FLUTTER_URL}.git" "${FLUTTER_ROOT}" \
+RUN set -eux; git clone -b ${VERSION} "${FLUTTER_URL}.git" "${FLUTTER_ROOT}" \
     && cd "${FLUTTER_ROOT}" \
     && git gc --prune=all
 
