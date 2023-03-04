@@ -5,6 +5,6 @@
 # make push VERSION="<VERSION OR CHANNEL>" e.g. make push VERSION="stable"
 push:
 	@echo "PUSH FLUTTER $(VERSION)"
-	@docker push zsdima/flutter:$(VERSION)
-	@docker push zsdima/flutter:$(VERSION)-web
-	@docker push zsdima/flutter:$(VERSION)-android
+	@docker push plugfox/flutter:$(VERSION)
+	@docker push plugfox/flutter:$(VERSION)-web
+	@docker push plugfox/flutter:$(VERSION)-android

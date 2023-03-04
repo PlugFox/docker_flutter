@@ -5,15 +5,15 @@
 # make build VERSION="<VERSION OR CHANNEL>" e.g. make build VERSION="stable"
 build:
 	@echo "BUILD FLUTTER $(VERSION)"
-	@docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --compress \
+	@docker build --compress \
 		 --file ./dockerfiles/flutter.dockerfile \
 		 --build-arg VERSION=$(VERSION) \
-		 --tag zsdima/flutter:$(VERSION) .
-	@docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --compress \
+		 --tag plugfox/flutter:$(VERSION) .
+	@docker build --compress \
 		 --file ./dockerfiles/flutter_web.dockerfile \
 		 --build-arg VERSION=$(VERSION) \
-		 --tag "zsdima/flutter:$(VERSION)-web" .
-	@docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --compress \
+		 --tag "plugfox/flutter:$(VERSION)-web" .
+	@docker build --compress \
 		 --file ./dockerfiles/flutter_android.dockerfile \
 		 --build-arg VERSION=$(VERSION) \
-		 --tag "zsdima/flutter:$(VERSION)-android" .
+		 --tag "plugfox/flutter:$(VERSION)-android" .
