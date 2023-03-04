@@ -39,7 +39,7 @@ jobs:
           push: true
           context: .
           file: ./dockerfiles/arm/flutter.dockerfile
-          tags: zsdima/flutter:${{ github.event.inputs.version }}
+          tags: plugfox/flutter:${{ github.event.inputs.version }}
           platforms: linux/arm64
 
       - name: Build and push Flutter Web
@@ -48,7 +48,7 @@ jobs:
           push: true
           context: .
           file: ./dockerfiles/arm/flutter_web.dockerfile
-          tags: zsdima/flutter:${{ github.event.inputs.version }}-web
+          tags: plugfox/flutter:${{ github.event.inputs.version }}-web
           platforms: linux/arm64
 
         
