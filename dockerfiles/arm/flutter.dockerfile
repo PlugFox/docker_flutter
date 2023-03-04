@@ -38,7 +38,7 @@ ENV VERSION=$VERSION \
 RUN set -eux; apt-get update \
     && mkdir -p /usr/lib $PUB_CACHE \
     && apt-get install -y bash curl git ca-certificates wget unzip \
-    && rm -rf /var/lib/apt/lists/* /var/cache/apk/*
+    && rm -rf /var/lib/apt/lists/*
 
 # Install & config Flutter
 RUN set -eux; git clone -b ${VERSION} --depth 1 "${FLUTTER_URL}.git" "${FLUTTER_ROOT}" \
@@ -49,7 +49,6 @@ RUN set -eux; git clone -b ${VERSION} --depth 1 "${FLUTTER_URL}.git" "${FLUTTER_
 RUN set -eux; for f in \
     /etc/ssl/certs \
     /usr/share/ca-certificates \
-    /etc/apk/keys \
     ${FLUTTER_HOME} \
     ${PUB_CACHE} \
     /root \
@@ -79,8 +78,9 @@ ENV FLUTTER_HOME=$FLUTTER_HOME \
 COPY --from=build /build_dependencies/ /
 
 # Install linux dependency and utils
-RUN set -eux; mkdir -p /build; apk --no-cache add bash git curl unzip  \
-    && rm -rf /tmp/* /var/lib/apt/lists/* /var/cache/apk/* \
+RUN set -eux; apt-get update \
+    && mkdir -p /build; apt-get install -y bash git curl unzip  \
+    && rm -rf /tmp/* /var/lib/apt/lists/* \
     /usr/share/man/* /usr/share/doc \
     && dart --disable-analytics && flutter config --no-analytics \
     && flutter doctor && flutter precache --universal
