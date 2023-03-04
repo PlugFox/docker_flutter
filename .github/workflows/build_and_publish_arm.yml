@@ -50,13 +50,3 @@ jobs:
           file: ./dockerfiles/arm/flutter_web.dockerfile
           tags: plugfox/flutter:${{ github.event.inputs.version }}-web
           platforms: linux/arm64
-
-        
-      #- name: 🐈 Pull alpine:latest
-      #  run: docker pull alpine:latest
-      #- name: 🏗️ Build images
-      #  run: make build VERSION="${{ github.event.inputs.version }}"
-      #- name: 🔥 Push images to registry
-      #  run: make push VERSION="${{ github.event.inputs.version }}"
-      #- name: 🗑️ Prune images
-      #  run: make prune
