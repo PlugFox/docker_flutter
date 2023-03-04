@@ -8,12 +8,12 @@ build:
 	@docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --compress \
 		 --file ./dockerfiles/flutter.dockerfile \
 		 --build-arg VERSION=$(VERSION) \
-		 --tag plugfox/flutter:$(VERSION) .
+		 --tag zsdima/flutter:$(VERSION) .
 	@docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --compress \
 		 --file ./dockerfiles/flutter_web.dockerfile \
 		 --build-arg VERSION=$(VERSION) \
-		 --tag "plugfox/flutter:$(VERSION)-web" .
+		 --tag "zsdima/flutter:$(VERSION)-web" .
 	@docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --compress \
 		 --file ./dockerfiles/flutter_android.dockerfile \
 		 --build-arg VERSION=$(VERSION) \
-		 --tag "plugfox/flutter:$(VERSION)-android" .
+		 --tag "zsdima/flutter:$(VERSION)-android" .
