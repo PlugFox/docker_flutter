@@ -1,0 +1,62 @@
+name: BUILD AND PUBLISH ARM
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Flutter version from https://github.com/flutter/flutter/tags"
+        required: true
+
+jobs:
+  build_and_push:
+    name: "Build and push"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    #strategy:
+    #  matrix:
+    #    dockerfile: ['flutter', 'flutter_web'] #, 'flutter_android'
+    steps:
+      - name: 🚂 Get latest code
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: linux/arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: ✨ Log into registry
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_LOGIN_USERNAME }}
+          password: ${{ secrets.DOCKER_LOGIN_PASSWORD }}
+
+      - name: Build and push Flutter
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          context: .
+          file: ./dockerfiles/arm/flutter.dockerfile
+          tags: zsdima/flutter:${{ github.event.inputs.version }}
+          platforms: linux/arm64
+
+      - name: Build and push Flutter Web
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          context: .
+          file: ./dockerfiles/arm/flutter_web.dockerfile
+          tags: zsdima/flutter:${{ github.event.inputs.version }}-web
+          platforms: linux/arm64
+
+        
+      #- name: 🐈 Pull alpine:latest
+      #  run: docker pull alpine:latest
+      #- name: 🏗️ Build images
+      #  run: make build VERSION="${{ github.event.inputs.version }}"
+      #- name: 🔥 Push images to registry
+      #  run: make push VERSION="${{ github.event.inputs.version }}"
+      #- name: 🗑️ Prune images
+      #  run: make prune
