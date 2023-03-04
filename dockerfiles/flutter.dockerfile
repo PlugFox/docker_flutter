@@ -64,7 +64,9 @@ RUN arch=$(uname -m); \
     wget -q -O /etc/apk/keys/rjerk.rsa.pub https://raw.githubusercontent.com/Rjerk/alpine-pkg-glibc/2.30-r0-aarch64/rjerk.rsa.pub; \
     wget -O /tmp/glibc/glibc.apk ${GLIBC_URL}/releases/download/${GLIBC_VERSION}-arm64/glibc-${GLIBC_VERSION}.apk; \
     wget -O /tmp/glibc/glibc-bin.apk ${GLIBC_URL}/releases/download/${GLIBC_VERSION}-arm64/glibc-bin-${GLIBC_VERSION}.apk; \
+    apk update; \
     apk add libc6-compat; \
+    echo "* * * ARM Ready * * *"; \
     else \
     >&2 echo "Unsupported Architecture"; \
     exit 1; \
