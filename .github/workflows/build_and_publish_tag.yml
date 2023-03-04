@@ -12,21 +12,49 @@ jobs:
     name: "Build and push"
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    #strategy:
+    #  matrix:
+    #    dockerfile: ['flutter', 'flutter_web'] #, 'flutter_android'
     steps:
       - name: 🚂 Get latest code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
       - name: ✨ Log into registry
-        run: echo "${{ secrets.DOCKER_LOGIN_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_LOGIN_USERNAME }} --password-stdin
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_LOGIN_USERNAME }}
+          password: ${{ secrets.DOCKER_LOGIN_PASSWORD }}
 
-      - name: 🐈 Pull alpine:latest
-        run: docker pull alpine:latest
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          context: .
+          file: ./dockerfiles/flutter.dockerfile
+          tags: zsdima/flutter:${{ github.event.inputs.version }}
+          platforms: linux/amd64,linux/arm64
 
-      - name: 🏗️ Build images
-        run: make build VERSION="${{ github.event.inputs.version }}"
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          context: .
+          file: ./dockerfiles/flutter_web.dockerfile
+          tags: zsdima/flutter:${{ github.event.inputs.version }}-web
+          platforms: linux/amd64,linux/arm64
 
-      - name: 🔥 Push images to registry
-        run: make push VERSION="${{ github.event.inputs.version }}"
-
-      - name: 🗑️ Prune images
-        run: make prune
+        
+      #- name: 🐈 Pull alpine:latest
+      #  run: docker pull alpine:latest
+      #- name: 🏗️ Build images
+      #  run: make build VERSION="${{ github.event.inputs.version }}"
+      #- name: 🔥 Push images to registry
+      #  run: make push VERSION="${{ github.event.inputs.version }}"
+      #- name: 🗑️ Prune images
+      #  run: make prune
