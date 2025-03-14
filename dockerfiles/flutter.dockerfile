@@ -36,13 +36,14 @@ ENV FLUTTER_HOME=${FLUTTER_HOME} \
 
 # Install only runtime dependencies without extra recommendations and extract the Flutter SDK
 RUN set -eux; \
-    apt-get update && apt-get install -y --no-install-recommends \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
         bash \
         git \
         curl \
         unzip \
         xz-utils \
-        ca-certificates \
+        ca-certificates && \
     # Clean up the package lists and cache to reduce the image size
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/cache/apt/* \
