@@ -372,3 +372,74 @@ jobs:
           name: build-report
           path: report.md
           retention-days: 30
+
+#  # Notify issue comments with flutter version
+#  notify_issue_comments:
+#    name: "Notify Issue Comments"
+#    runs-on: ubuntu-latest
+#    needs: [setup, build_base, build_web, build_android, verify_images]
+#    if: always() && !failure() && !cancelled()
+#    env:
+#      VERSION: ${{ needs.setup.outputs.flutter_version }}
+#      ISSUE_NUMBER: 123
+#    steps:
+#      - name: Process Issue Comments
+#        uses: actions/github-script@v6
+#        with:
+#          script: |
+#            const issueNumber = parseInt(process.env.ISSUE_NUMBER, 10);
+#            const version = process.env.VERSION;
+#
+#            const { data: comments } = await github.issues.listComments({
+#              owner: context.repo.owner,
+#              repo: context.repo.repo,
+#              issue_number: issueNumber,
+#            });
+#
+#            const fetch = require('node-fetch');
+#
+#            for (const comment of comments) {
+#              const trimmedBody = comment.body.trim();
+#              const urlRegex = /^https?:\/\/\S+$/;
+#
+#              if (urlRegex.test(trimmedBody)) {
+#                let url = trimmedBody;
+#                url += url.includes('?') ? `&version=${version}` : `?version=${version}`;
+#
+#                try {
+#                  const response = await fetch(url);
+#                  if (response.ok) {
+#                    // If the response is successful, add a positive reaction
+#                    await github.reactions.createForIssueComment({
+#                      owner: context.repo.owner,
+#                      repo: context.repo.repo,
+#                      comment_id: comment.id,
+#                      content: 'rocket'
+#                    });
+#                  } else {
+#                    // If the response is not successful, add a negative reaction
+#                    await github.reactions.createForIssueComment({
+#                      owner: context.repo.owner,
+#                      repo: context.repo.repo,
+#                      comment_id: comment.id,
+#                      content: '-1'
+#                    });
+#                  }
+#                } catch (error) {
+#                  // If the request fails, add a negative reaction
+#                  await github.reactions.createForIssueComment({
+#                    owner: context.repo.owner,
+#                    repo: context.repo.repo,
+#                    comment_id: comment.id,
+#                    content: '-1'
+#                  });
+#                }
+#              } else {
+#                // If the comment does not contain a URL, delete it
+#                await github.issues.deleteComment({
+#                  owner: context.repo.owner,
+#                  repo: context.repo.repo,
+#                  comment_id: comment.id,
+#                });
+#              }
+#            }
