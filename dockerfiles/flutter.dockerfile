@@ -13,7 +13,13 @@
 # + DoumanAsh <douman@gmx.se>
 # ----------------------------------------------------------------------------------------
 
-# Build stage: Use Ubuntu as base image
+# 3.35
+# 3.31
+# 2.6
+
+# ------------------------------
+# Builder Stage: Build and Package Flutter SDK
+# ------------------------------
 ARG UBUNTU_VERSION=24.04
 FROM ubuntu:${UBUNTU_VERSION} AS builder
 
@@ -42,24 +48,29 @@ RUN set -eux; apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     xz-utils \
     ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    mkdir -p ${PUB_CACHE}
 
 WORKDIR /
 
 # Clone the Flutter repository with the specified branch (preserving the .git folder) and optimize it
-RUN set -eux; git clone -b ${VERSION} --depth 1 ${FLUTTER_URL} ${FLUTTER_HOME} && \
+RUN set -eux; \
+    git clone -b ${VERSION} --depth 1 ${FLUTTER_URL} ${FLUTTER_HOME} && \
     cd ${FLUTTER_HOME} && \
     git gc --prune=all
 
-# Configure Flutter: disable analytics, pre-cache universal artifacts, and run doctor
+# Create dependencies
 RUN set -eux; \
-    ${FLUTTER_HOME}/bin/flutter config --disable-analytics --no-cli-animations && \
-    ${FLUTTER_HOME}/bin/flutter precache --universal && \
-    ${FLUTTER_HOME}/bin/flutter doctor --verbose
-
-# Package the entire Flutter SDK (including .git) into a tarball for efficient transfer
-RUN set -eux; mkdir -p /build && \
-    tar czf /build/flutter-sdk.tar.gz -C ${FLUTTER_HOME} .
+    for f in \
+        /etc/ssl/certs \
+        /usr/share/ca-certificates \
+        ${FLUTTER_HOME} \
+        ${PUB_CACHE} \
+    ; do \
+        dir="$(dirname "$f")"; \
+        mkdir -p "/dependencies$dir"; \
+        cp --archive --link --dereference --no-target-directory "$f" "/dependencies$f"; \
+    done
 
 # ------------------------------
 # Production Stage: Final Image
@@ -79,29 +90,37 @@ ENV FLUTTER_HOME=${FLUTTER_HOME} \
     PUB_CACHE=${PUB_CACHE} \
     PATH=$PATH:${FLUTTER_HOME}/bin:${PUB_CACHE}/bin:${FLUTTER_HOME}/bin/cache/dart-sdk/bin
 
-COPY --from=builder /build/flutter-sdk.tar.gz /build/flutter-sdk.tar.gz
+# Copy the Flutter SDK tarball from the builder stage
+COPY --from=builder /dependencies /
 
-# Install only runtime dependencies without extra recommendations
-RUN set -eux; apt-get update && apt-get install -y --no-install-recommends \
-    bash \
-    git \
-    curl \
-    unzip \
-    xz-utils \
-    ca-certificates && \
-    rm -rf /var/lib/apt/lists/* && \
-    # Create the Flutter directory and copy the Flutter SDK tarball from the builder stage
-    mkdir -p ${FLUTTER_HOME} ${PUB_CACHE} && \
-    # Extract the Flutter SDK tarball into the target directory
-    tar xzf /build/flutter-sdk.tar.gz -C ${FLUTTER_HOME} && \
-    # Create a non-root user for better security and adjust permissions on Flutter directories
+# Install only runtime dependencies without extra recommendations and extract the Flutter SDK
+RUN set -eux; \
+    apt-get update && apt-get install -y --no-install-recommends \
+        bash \
+        git \
+        curl \
+        unzip \
+        xz-utils \
+        ca-certificates && \
+    # Clean up the package lists and cache to reduce the image size
+    rm -rf /var/lib/apt/lists/*  \
+        /usr/share/man/* /usr/share/doc && \
+    # Set the Flutter SDK directory permissions
+    git config --global --add safe.directory /opt/flutter && \
+    # Create a non-root user for better security and adjust ownership
     useradd -m -s /bin/bash flutter && \
-    chown -R flutter: ${FLUTTER_HOME} ${PUB_CACHE} && \
-    rm -rf /build/flutter-sdk.tar.gz
+    chown -R flutter: ${FLUTTER_HOME} ${PUB_CACHE}
 
 # Switch to the non-root user
 USER flutter
 WORKDIR /home/flutter
+
+# Disable Flutter analytics and CLI animations,
+# precache the Flutter SDK and run the doctor
+RUN set -eux; \
+    ${FLUTTER_HOME}/bin/flutter config --disable-analytics --no-cli-animations && \
+    ${FLUTTER_HOME}/bin/flutter precache --universal && \
+    ${FLUTTER_HOME}/bin/flutter doctor --verbose
 
 # Add image metadata labels
 LABEL org.opencontainers.image.title="Flutter Docker" \
@@ -111,5 +130,4 @@ LABEL org.opencontainers.image.title="Flutter Docker" \
       maintainer="Plague Fox <PlugFox@gmail.com>"
 
 # Default command to run when the container starts
-#SHELL [ "/bin/bash", "-c" ]
 CMD ["flutter", "doctor"]
