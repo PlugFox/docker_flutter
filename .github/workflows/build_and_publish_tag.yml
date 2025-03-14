@@ -35,6 +35,7 @@ on:
 # Environment variables
 env:
   DOCKER_IMAGE: plugfox/flutter
+  GHCR_IMAGE: ghcr.io/${{ github.repository_owner }}/flutter
   CACHE_TAG: cache
   UBUNTU_VERSION: 24.04
   FLUTTER_HOME: /opt/flutter
@@ -59,7 +60,7 @@ jobs:
       - name: 📋 Extract parameters
         id: parameters
         run: |
-          # Flutter version
+          # Determine Flutter version
           if [ -n "${{ github.event.inputs.version }}" ]; then
             FLUTTER_VERSION="${{ github.event.inputs.version }}"
           elif [ -n "${{ github.event.client_payload.version }}" ]; then
@@ -100,10 +101,10 @@ jobs:
           fi
           echo "variants=${VARIANTS}" >> $GITHUB_OUTPUT
 
-          # Current date for labels
+          # Date for labels
           echo "date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
 
-  # Build and push base Flutter image
+  # Build and push base Flutter image to both Docker Hub and GHCR
   build_base:
     name: "Build Flutter base image"
     runs-on: ubuntu-latest
@@ -134,7 +135,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.DOCKER_IMAGE }}
+          images: |
+            ${{ env.DOCKER_IMAGE }}
+            ${{ env.GHCR_IMAGE }}
           tags: |
             type=raw,value=${{ needs.setup.outputs.flutter_version }}
             type=raw,value=latest,enable=${{ needs.setup.outputs.push_latest == 'true' }}
@@ -189,7 +192,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.DOCKER_IMAGE }}
+          images: |
+            ${{ env.DOCKER_IMAGE }}
+            ${{ env.GHCR_IMAGE }}
           tags: |
             type=raw,value=${{ needs.setup.outputs.flutter_version }}-web
             type=raw,value=latest-web,enable=${{ needs.setup.outputs.push_latest == 'true' }}
@@ -243,6 +248,17 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.DOCKER_IMAGE }}
+          tags: |
+            type=raw,value=${{ needs.setup.outputs.flutter_version }}-android
+            type=raw,value=latest-android,enable=${{ needs.setup.outputs.push_latest == 'true' }}
+
+      - name: 🏷️ Prepare Docker tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.DOCKER_IMAGE }}
+            ${{ env.GHCR_IMAGE }}
           tags: |
             type=raw,value=${{ needs.setup.outputs.flutter_version }}-android
             type=raw,value=latest-android,enable=${{ needs.setup.outputs.push_latest == 'true' }}
