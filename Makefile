@@ -29,14 +29,14 @@ build: ## Build images for channel or version, make build VERSION="<VERSION OR C
 		 --file ./dockerfiles/flutter.dockerfile \
 		 --build-arg VERSION=$(VERSION) \
 		 --tag plugfox/flutter:$(VERSION) .
-	@docker build --compress \
-		 --file ./dockerfiles/flutter_web.dockerfile \
-		 --build-arg VERSION=$(VERSION) \
-		 --tag "plugfox/flutter:$(VERSION)-web" .
-	@docker build --compress \
-		 --file ./dockerfiles/flutter_android.dockerfile \
-		 --build-arg VERSION=$(VERSION) \
-		 --tag "plugfox/flutter:$(VERSION)-android" .
+#	@docker build --compress \
+#		 --file ./dockerfiles/flutter_web.dockerfile \
+#		 --build-arg VERSION=$(VERSION) \
+#		 --tag "plugfox/flutter:$(VERSION)-web" .
+#	@docker build --compress \
+#		 --file ./dockerfiles/flutter_android.dockerfile \
+#		 --build-arg VERSION=$(VERSION) \
+#		 --tag "plugfox/flutter:$(VERSION)-android" .
 
 .PHONY: build-arm
 build-arm: ## Build arm64 images, make build-arm VERSION="<VERSION OR CHANNEL>"
