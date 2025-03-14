@@ -32,7 +32,7 @@ on:
   repository_dispatch:
     types: [build_flutter]
 
-# Environment variables
+# Global environment variables
 env:
   DOCKER_IMAGE: plugfox/flutter
   GHCR_IMAGE: ghcr.io/${{ github.repository_owner }}/flutter
@@ -60,7 +60,7 @@ jobs:
       - name: 📋 Extract parameters
         id: parameters
         run: |
-          # Determine Flutter version
+          # Extract Flutter version from inputs or repository dispatch payload
           if [ -n "${{ github.event.inputs.version }}" ]; then
             FLUTTER_VERSION="${{ github.event.inputs.version }}"
           elif [ -n "${{ github.event.client_payload.version }}" ]; then
@@ -71,17 +71,15 @@ jobs:
           fi
           echo "flutter_version=${FLUTTER_VERSION}" >> $GITHUB_OUTPUT
 
-          # Push latest tag
-          if [ "${{ github.event.inputs.push_latest }}" == "true" ]; then
-            PUSH_LATEST="true"
-          elif [ "${{ github.event.client_payload.push_latest }}" == "true" ]; then
+          # Determine if latest tag should be pushed
+          if [ "${{ github.event.inputs.push_latest }}" == "true" ] || [ "${{ github.event.client_payload.push_latest }}" == "true" ]; then
             PUSH_LATEST="true"
           else
             PUSH_LATEST="false"
           fi
           echo "push_latest=${PUSH_LATEST}" >> $GITHUB_OUTPUT
 
-          # Platforms
+          # Set target platforms
           if [ -n "${{ github.event.inputs.platforms }}" ]; then
             PLATFORMS="${{ github.event.inputs.platforms }}"
           elif [ -n "${{ github.event.client_payload.platforms }}" ]; then
@@ -91,7 +89,7 @@ jobs:
           fi
           echo "platforms=${PLATFORMS}" >> $GITHUB_OUTPUT
 
-          # Variants
+          # Set image build variants
           if [ -n "${{ github.event.inputs.build_variants }}" ]; then
             VARIANTS="${{ github.event.inputs.build_variants }}"
           elif [ -n "${{ github.event.client_payload.build_variants }}" ]; then
@@ -101,7 +99,7 @@ jobs:
           fi
           echo "variants=${VARIANTS}" >> $GITHUB_OUTPUT
 
-          # Date for labels
+          # Set build date for image labels
           echo "date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
 
   # Build and push base Flutter image to both Docker Hub and GHCR
@@ -247,15 +245,6 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.DOCKER_IMAGE }}
-          tags: |
-            type=raw,value=${{ needs.setup.outputs.flutter_version }}-android
-            type=raw,value=latest-android,enable=${{ needs.setup.outputs.push_latest == 'true' }}
-
-      - name: 🏷️ Prepare Docker tags
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
           images: |
             ${{ env.DOCKER_IMAGE }}
             ${{ env.GHCR_IMAGE }}
@@ -319,26 +308,34 @@ jobs:
 
       - name: 📊 Generate report
         run: |
-          echo "# Flutter Docker Images Build Report" > report.md
-          echo "- Flutter Version: ${{ needs.setup.outputs.flutter_version }}" >> report.md
-          echo "- Build Date: $(date -u)" >> report.md
-          echo "- Latest Tag: ${{ needs.setup.outputs.push_latest == 'true' && 'Yes' || 'No' }}" >> report.md
-          echo "- Platforms: ${{ needs.setup.outputs.platforms }}" >> report.md
-          echo "- Built Variants:" >> report.md
-          if [[ "${{ contains(needs.setup.outputs.variants, 'base') && needs.build_base.result == 'success' }}" == "true" ]]; then
-            echo "  - ✅ Base: ${{ env.DOCKER_IMAGE }}:${{ needs.setup.outputs.flutter_version }}" >> report.md
+          REPORT_FILE=report.md
+          echo "# Flutter Docker Images Build Report" > $REPORT_FILE
+          echo "- Flutter Version: ${{ needs.setup.outputs.flutter_version }}" >> $REPORT_FILE
+          echo "- Build Date: ${{ needs.setup.outputs.date }}" >> $REPORT_FILE
+          if [ "${{ needs.setup.outputs.push_latest }}" == "true" ]; then
+            echo "- Latest Tag: Yes" >> $REPORT_FILE
           else
-            echo "  - ❌ Base" >> report.md
+            echo "- Latest Tag: No" >> $REPORT_FILE
           fi
-          if [[ "${{ contains(needs.setup.outputs.variants, 'web') && needs.build_web.result == 'success' }}" == "true" ]]; then
-            echo "  - ✅ Web: ${{ env.DOCKER_IMAGE }}:${{ needs.setup.outputs.flutter_version }}-web" >> report.md
+          echo "- Platforms: ${{ needs.setup.outputs.platforms }}" >> $REPORT_FILE
+          echo "- Built Variants:" >> $REPORT_FILE
+
+          if [[ "${{ needs.setup.outputs.variants }}" == *"base"* && "${{ needs.build_base.result }}" == "success" ]]; then
+            echo "  - ✅ Base: ${{ env.DOCKER_IMAGE }}:${{ needs.setup.outputs.flutter_version }}" >> $REPORT_FILE
           else
-            echo "  - ❌ Web" >> report.md
+            echo "  - ❌ Base" >> $REPORT_FILE
           fi
-          if [[ "${{ contains(needs.setup.outputs.variants, 'android') && needs.build_android.result == 'success' }}" == "true" ]]; then
-            echo "  - ✅ Android: ${{ env.DOCKER_IMAGE }}:${{ needs.setup.outputs.flutter_version }}-android" >> report.md
+
+          if [[ "${{ needs.setup.outputs.variants }}" == *"web"* && "${{ needs.build_web.result }}" == "success" ]]; then
+            echo "  - ✅ Web: ${{ env.DOCKER_IMAGE }}:${{ needs.setup.outputs.flutter_version }}-web" >> $REPORT_FILE
           else
-            echo "  - ❌ Android" >> report.md
+            echo "  - ❌ Web" >> $REPORT_FILE
+          fi
+
+          if [[ "${{ needs.setup.outputs.variants }}" == *"android"* && "${{ needs.build_android.result }}" == "success" ]]; then
+            echo "  - ✅ Android: ${{ env.DOCKER_IMAGE }}:${{ needs.setup.outputs.flutter_version }}-android" >> $REPORT_FILE
+          else
+            echo "  - ❌ Android" >> $REPORT_FILE
           fi
 
       - name: 💾 Upload report
