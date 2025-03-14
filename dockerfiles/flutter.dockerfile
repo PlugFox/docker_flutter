@@ -13,15 +13,11 @@
 # + DoumanAsh <douman@gmx.se>
 # ----------------------------------------------------------------------------------------
 
-# 3.35
-# 3.31
-# 2.6
-
 # ------------------------------
-# Builder Stage: Build and Package Flutter SDK
+# Flutter image based on Ubuntu
 # ------------------------------
 ARG UBUNTU_VERSION=24.04
-FROM ubuntu:${UBUNTU_VERSION} AS builder
+FROM ubuntu:${UBUNTU_VERSION} AS flutter
 
 # Set non-interactive mode for apt-get
 ENV DEBIAN_FRONTEND=noninteractive
@@ -32,66 +28,11 @@ ARG FLUTTER_HOME=/opt/flutter
 ARG PUB_CACHE=/var/cache/pub
 ARG FLUTTER_URL=https://github.com/flutter/flutter.git
 
-# Set environment variables for Flutter
-ENV VERSION=${VERSION} \
-    FLUTTER_HOME=${FLUTTER_HOME} \
-    FLUTTER_ROOT=${FLUTTER_HOME} \
-    PUB_CACHE=${PUB_CACHE} \
-    PATH=$PATH:${FLUTTER_HOME}/bin:${PUB_CACHE}/bin
-
-# Update package lists and install required packages without extra recommendations
-RUN set -eux; apt-get update && apt-get install -y --no-install-recommends \
-    bash \
-    curl \
-    git \
-    wget \
-    unzip \
-    xz-utils \
-    ca-certificates && \
-    rm -rf /var/lib/apt/lists/* && \
-    mkdir -p ${PUB_CACHE}
-
-WORKDIR /
-
-# Clone the Flutter repository with the specified branch (preserving the .git folder) and optimize it
-RUN set -eux; \
-    git clone -b ${VERSION} --depth 1 ${FLUTTER_URL} ${FLUTTER_HOME} && \
-    cd ${FLUTTER_HOME} && \
-    git gc --prune=all
-
-# Create dependencies
-RUN set -eux; \
-    for f in \
-        /etc/ssl/certs \
-        /usr/share/ca-certificates \
-        ${FLUTTER_HOME} \
-        ${PUB_CACHE} \
-    ; do \
-        dir="$(dirname "$f")"; \
-        mkdir -p "/dependencies$dir"; \
-        cp --archive --link --dereference --no-target-directory "$f" "/dependencies$f"; \
-    done
-
-# ------------------------------
-# Production Stage: Final Image
-# ------------------------------
-FROM ubuntu:${UBUNTU_VERSION} AS production
-
-# Set non-interactive mode for apt-get
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Build arguments for production stage
-ARG FLUTTER_HOME=/opt/flutter
-ARG PUB_CACHE=/var/cache/pub
-
 # Set environment variables for Flutter in production
 ENV FLUTTER_HOME=${FLUTTER_HOME} \
     FLUTTER_ROOT=${FLUTTER_HOME} \
     PUB_CACHE=${PUB_CACHE} \
     PATH=$PATH:${FLUTTER_HOME}/bin:${PUB_CACHE}/bin:${FLUTTER_HOME}/bin/cache/dart-sdk/bin
-
-# Copy the Flutter SDK tarball from the builder stage
-COPY --from=builder /dependencies /
 
 # Install only runtime dependencies without extra recommendations and extract the Flutter SDK
 RUN set -eux; \
@@ -101,33 +42,49 @@ RUN set -eux; \
         curl \
         unzip \
         xz-utils \
-        ca-certificates && \
+        ca-certificates \
     # Clean up the package lists and cache to reduce the image size
-    rm -rf /var/lib/apt/lists/*  \
-        /usr/share/man/* /usr/share/doc && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/cache/apt/* \
+           /usr/share/man/* /usr/share/doc/* && \
+    # Ensure the /opt/flutter directory exists and is writable before switching users
+    mkdir -p ${FLUTTER_HOME} ${PUB_CACHE} && \
+    # Download the Flutter SDK from the GitHub repository
+    git clone -b ${VERSION} --depth 1 ${FLUTTER_URL} ${FLUTTER_HOME} && \
+    cd ${FLUTTER_HOME} && \
     # Set the Flutter SDK directory permissions
-    git config --global --add safe.directory /opt/flutter && \
-    # Create a non-root user for better security and adjust ownership
-    useradd -m -s /bin/bash flutter && \
-    chown -R flutter: ${FLUTTER_HOME} ${PUB_CACHE}
-
-# Switch to the non-root user
-USER flutter
-WORKDIR /home/flutter
-
-# Disable Flutter analytics and CLI animations,
-# precache the Flutter SDK and run the doctor
-RUN set -eux; \
+    git config --global --add safe.directory ${FLUTTER_HOME} && \
+    # Clean up the Flutter SDK by running the git garbage collector
+    git gc --aggressive --prune=all && \
+    # Disable Flutter analytics and CLI animations
     ${FLUTTER_HOME}/bin/flutter config --disable-analytics --no-cli-animations && \
+    # Precache the Flutter SDK and run the doctor
     ${FLUTTER_HOME}/bin/flutter precache --universal && \
-    ${FLUTTER_HOME}/bin/flutter doctor --verbose
+    ${FLUTTER_HOME}/bin/flutter doctor --verbose && \
+    && chown -R root:root ${FLUTTER_HOME}
+
+USER root
+WORKDIR /
+
+# Create a non-root user for better security and adjust ownership
+#RUN set -eux; \
+#    useradd -m -s /bin/bash flutter && \
+#    chown -R flutter:flutter ${FLUTTER_HOME} ${PUB_CACHE}
+
+# Switch to the non-root user **AFTER** installing Flutter
+#USER flutter
+#WORKDIR /home/flutter
+
+# Disable Flutter analytics and CLI animations for the non-root user
+#RUN set -eux; ${FLUTTER_HOME}/bin/flutter config --disable-analytics --no-cli-animations
 
 # Add image metadata labels
 LABEL org.opencontainers.image.title="Flutter Docker" \
       org.opencontainers.image.description="Ubuntu-based Docker image with Flutter and Dart" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.source="https://github.com/plugfox/docker_flutter" \
-      maintainer="Plague Fox <PlugFox@gmail.com>"
+      maintainer="Plague Fox <PlugFox@gmail.com>" \
+      family=plugfox/flutter
 
 # Default command to run when the container starts
 CMD ["flutter", "doctor"]
