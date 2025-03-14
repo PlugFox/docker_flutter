@@ -61,7 +61,7 @@ RUN set -eux; \
     # Precache the Flutter SDK and run the doctor
     ${FLUTTER_HOME}/bin/flutter precache --universal && \
     ${FLUTTER_HOME}/bin/flutter doctor --verbose && \
-    && chown -R root:root ${FLUTTER_HOME}
+    chown -R root:root ${FLUTTER_HOME}
 
 USER root
 WORKDIR /
