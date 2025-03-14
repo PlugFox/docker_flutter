@@ -52,7 +52,8 @@ RUN set -eux; git clone -b ${VERSION} --depth 1 ${FLUTTER_URL} ${FLUTTER_HOME} &
     git gc --prune=all
 
 # Configure Flutter: disable analytics, pre-cache universal artifacts, and run doctor
-RUN set -eux; ${FLUTTER_HOME}/bin/flutter config --no-analytics && \
+RUN set -eux; \
+    ${FLUTTER_HOME}/bin/flutter config --disable-analytics --no-cli-animations && \
     ${FLUTTER_HOME}/bin/flutter precache --universal && \
     ${FLUTTER_HOME}/bin/flutter doctor --verbose
 
