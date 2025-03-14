@@ -5,15 +5,15 @@
 [![Docker](https://img.shields.io/badge/Docker-Hub-2496ed.svg)](https://hub.docker.com/r/plugfox/flutter/tags)
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/PlugFox/docker_flutter/blob/master/LICENSE)
 
-Alpine Linux images for Flutter & Dart with useful utils and web build support.  
-Symlinks to dart, flutter in the folder: `/opt/flutter`  
+Alpine Linux images for Flutter & Dart with useful utils and web build support.
+Symlinks to dart, flutter in the folder: `/opt/flutter`
 Rolling release update strategy every Monday.
 
 ### Environment variables
 
-- USER: `root`
-- WORKDIR: `/build`
+- USER: `flutter`
+- WORKDIR: `/home/flutter`
 - SHELL: `/bin/bash`
 - FLUTTER_ROOT: `/opt/flutter`
-- PUB_CACHE: `/var/tmp/.pub_cache`
+- PUB_CACHE: `/var/cache/pub`
 - ANDROID_HOME: `/opt/android`
