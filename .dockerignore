@@ -1,0 +1,13 @@
+tool/
+.github/
+dockerfiles/
+docker-compose.yml
+*.yml
+LICENSE
+README.md
+.gitignore
+.dockerignore
+.gitattributes
+.git/
+.vscode/
+.idea/

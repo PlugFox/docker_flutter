@@ -4,3 +4,5 @@
 **.bat
 **.cmd
 **.ps1
+
+!/tool/build_demo_android.sh
