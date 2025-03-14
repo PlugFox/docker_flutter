@@ -32,6 +32,11 @@ on:
   repository_dispatch:
     types: [build_flutter]
 
+permissions:
+  packages: write
+  contents: read
+  issues: write
+
 # Global environment variables
 env:
   DOCKER_IMAGE: plugfox/flutter
@@ -40,7 +45,9 @@ env:
   UBUNTU_VERSION: 24.04
   FLUTTER_HOME: /opt/flutter
   PUB_CACHE: /var/cache/pub
+  # https://developer.android.com/studio/#command-tools
   ANDROID_SDK_TOOLS_VERSION: 11076708
+  # https://developer.android.com/studio/releases/build-tools
   ANDROID_PLATFORM_VERSION: 35
   ANDROID_BUILD_TOOLS_VERSION: 35.0.0
   ANDROID_HOME: /opt/android
@@ -129,6 +136,13 @@ jobs:
           username: ${{ secrets.DOCKER_LOGIN_USERNAME }}
           password: ${{ secrets.DOCKER_LOGIN_PASSWORD }}
 
+      - name: "🐙 Log in to GitHub Container Registry"
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: 🏷️ Prepare Docker tags
         id: meta
         uses: docker/metadata-action@v5
@@ -186,6 +200,13 @@ jobs:
           username: ${{ secrets.DOCKER_LOGIN_USERNAME }}
           password: ${{ secrets.DOCKER_LOGIN_PASSWORD }}
 
+      - name: "🐙 Log in to GitHub Container Registry"
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: 🏷️ Prepare Docker tags
         id: meta
         uses: docker/metadata-action@v5
@@ -240,6 +261,13 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_LOGIN_USERNAME }}
           password: ${{ secrets.DOCKER_LOGIN_PASSWORD }}
+
+      - name: "🐙 Log in to GitHub Container Registry"
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🏷️ Prepare Docker tags
         id: meta
