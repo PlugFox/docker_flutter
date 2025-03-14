@@ -11,8 +11,8 @@ Rolling release update strategy every Monday.
 
 ### Environment variables
 
-- USER: `root`
-- WORKDIR: `/build`
+- USER: `flutter`
+- WORKDIR: `/home/flutter`
 - SHELL: `/bin/bash`
 - FLUTTER_ROOT: `/opt/flutter`
 - PUB_CACHE: `/var/cache/pub`
