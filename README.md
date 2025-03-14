@@ -23,3 +23,15 @@ Release update strategy at every new flutter version.
 - ANDROID_SDK_TOOLS_VERSION: `NNNNNNNN`
 - ANDROID_PLATFORM_VERSION: `XX`
 - ANDROID_BUILD_TOOLS_VERSION: `XX.0.0`
+
+### How to check image
+
+```bash
+cd /tmp
+docker run --rm -it --name flutter_web \
+    -w /opt/flutter/examples/hello_world/ \
+    -v ./build:/opt/flutter/examples/hello_world/build/web \
+    -v ./cache:/var/cache/pub \
+    plugfox/flutter:stable-web \
+    /bin/bash -c "set -eux; flutter pub get && flutter build web --release"
+```
