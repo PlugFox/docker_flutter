@@ -9,6 +9,9 @@ Docker Images for Flutter & Dart with useful utils and web build support.
 Symlinks to dart, flutter in the folder: `/opt/flutter`
 Release update strategy at every new flutter version.
 
+Android tags include the Android SDK and Flutter for Android development.
+Web tags include the `minify` utility for web build optimization.
+
 ### Environment variables
 
 Base environment variables:
@@ -27,14 +30,42 @@ Andoid SDK environment variables:
 - ANDROID_PLATFORM_VERSION: `XX`
 - ANDROID_BUILD_TOOLS_VERSION: `XX.0.0`
 
+### How to build locally
+
+```bash
+docker build --compress \
+    --file ./dockerfiles/flutter.dockerfile \
+    --build-arg VERSION=stable \
+    --tag plugfox/flutter:local .
+
+docker build --compress \
+    --file ./dockerfiles/flutter_web.dockerfile \
+    --build-arg VERSION=local \
+    --tag plugfox/flutter:local-web .
+```
+
+### How to get shell
+
+```bash
+docker run --rm -it --name flutter_web \
+    -w /app \
+    plugfox/flutter:stable-web \
+    /bin/bash
+```
+
 ### How to check image
 
 ```bash
-cd /tmp
 docker run --rm -it --name flutter_web \
-    -w /opt/flutter/examples/hello_world/ \
-    -v ./build:/opt/flutter/examples/hello_world/build/web \
-    -v ./cache:/var/cache/pub \
+    -w /app \
+    -v /tmp/build:/app/build/web \
+    -v /tmp/cache:/var/cache/pub \
     plugfox/flutter:stable-web \
-    /bin/bash -c "set -eux; flutter pub get && flutter build web --release"
+    /bin/bash -c "set -eux; flutter --version; dart --version; \
+    flutter create --org="dev.flutter" --project-name="example" \
+    --platforms=web --description="Example" . && \
+    flutter pub get && flutter build web --release && \
+    cd build/web && \
+    mv index.html index.src.html && \
+    minify --output index.html index.src.html"
 ```

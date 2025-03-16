@@ -1,19 +1,3 @@
-# ----------------------------------------------------------------------------------------
-#                                        Dockerfile
-# ----------------------------------------------------------------------------------------
-# image:       plugfox/flutter:${VERSION}-android
-# repository:  https://github.com/plugfox/docker_flutter
-# license:     MIT
-# requires:
-# + ubuntu:latest
-# + plugfox/flutter:<version>
-# authors:
-# + Plague Fox <PlugFox@gmail.com>
-# + Maria Melnik
-# + Dmitri Z <z-dima@live.ru>
-# + DoumanAsh <douman@gmx.se>
-# ----------------------------------------------------------------------------------------
-
 ARG VERSION="stable"
 
 # https://developer.android.com/studio/#command-tools
@@ -27,10 +11,14 @@ ARG ANDROID_HOME="/opt/android"
 
 # Build stage to prepare Android SDK
 ARG UBUNTU_VERSION=24.04
+
+# ------------------------------
+# Get Android SDK
+# ------------------------------
 FROM ubuntu:${UBUNTU_VERSION} AS build
 
 USER root
-WORKDIR /
+WORKDIR /app
 
 # Set non-interactive mode for apt-get
 ENV DEBIAN_FRONTEND=noninteractive
@@ -77,7 +65,9 @@ RUN set -eux; \
         cp --archive --link --dereference --no-target-directory "$f" "/build_android_dependencies$f"; \
     done
 
-# Production stage
+# ------------------------------
+# Flutter Android development image
+# ------------------------------
 FROM plugfox/flutter:${VERSION} AS production
 
 # Set non-interactive mode for apt-get
