@@ -1,19 +1,3 @@
-# ----------------------------------------------------------------------------------------
-#                                        Dockerfile
-# ----------------------------------------------------------------------------------------
-# image:       plugfox/flutter:${VERSION}-android
-# repository:  https://github.com/plugfox/docker_flutter
-# license:     MIT
-# requires:
-# + ubuntu:latest
-# + plugfox/flutter:<version>
-# authors:
-# + Plague Fox <PlugFox@gmail.com>
-# + Maria Melnik
-# + Dmitri Z <z-dima@live.ru>
-# + DoumanAsh <douman@gmx.se>
-# ----------------------------------------------------------------------------------------
-
 ARG VERSION="stable"
 
 # https://developer.android.com/studio/#command-tools
