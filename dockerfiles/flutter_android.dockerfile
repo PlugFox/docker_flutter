@@ -11,6 +11,10 @@ ARG ANDROID_HOME="/opt/android"
 
 # Build stage to prepare Android SDK
 ARG UBUNTU_VERSION=24.04
+
+# ------------------------------
+# Get Android SDK
+# ------------------------------
 FROM ubuntu:${UBUNTU_VERSION} AS build
 
 USER root
@@ -61,7 +65,9 @@ RUN set -eux; \
         cp --archive --link --dereference --no-target-directory "$f" "/build_android_dependencies$f"; \
     done
 
-# Production stage
+# ------------------------------
+# Flutter Android development image
+# ------------------------------
 FROM plugfox/flutter:${VERSION} AS production
 
 # Set non-interactive mode for apt-get

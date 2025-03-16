@@ -1,11 +1,11 @@
 # ------------------------------
 # Arguments
 # ------------------------------
+ARG UBUNTU_VERSION=24.04
 ARG VERSION=stable
 ARG FLUTTER_HOME=/opt/flutter
 ARG PUB_CACHE=/var/cache/pub
 ARG FLUTTER_URL=https://github.com/flutter/flutter.git
-ARG UBUNTU_VERSION=24.04
 
 # ------------------------------
 # Flutter image based on Ubuntu
@@ -54,14 +54,16 @@ RUN set -eux; \
     git gc --aggressive --prune=all && \
     # Remove unnecessary files and directories
     find . \( -type d \( -name "doc" -o -name "examples" -o -name "dev" \) \) -exec rm -rf {} + && \
+    # Set proper ownership
+    mkdir -p ${PUB_CACHE} && \
+    chown -R root:root ${FLUTTER_HOME} ${PUB_CACHE} && \
     # Set the Flutter SDK directory permissions
     git config --global --add safe.directory ${FLUTTER_HOME} && \
     # Disable Flutter analytics and CLI animations
-    ${FLUTTER_HOME}/bin/flutter config --disable-analytics --no-cli-animations && \
+    flutter config --disable-analytics --no-cli-animations && \
     # Precache the Flutter SDK and run the doctor
-    ${FLUTTER_HOME}/bin/flutter precache --universal && \
-    ${FLUTTER_HOME}/bin/flutter doctor --verbose && \
-    chown -R root:root ${FLUTTER_HOME}
+    flutter precache --universal && \
+    flutter doctor --verbose
 
 # Add image metadata labels
 LABEL org.opencontainers.image.title="Flutter Docker" \

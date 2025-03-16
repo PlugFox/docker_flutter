@@ -9,6 +9,9 @@ Docker Images for Flutter & Dart with useful utils and web build support.
 Symlinks to dart, flutter in the folder: `/opt/flutter`
 Release update strategy at every new flutter version.
 
+Android tags include the Android SDK and Flutter for Android development.
+Web tags include the `minify` utility for web build optimization.
+
 ### Environment variables
 
 Base environment variables:
@@ -55,10 +58,14 @@ docker run --rm -it --name flutter_web \
 ```bash
 docker run --rm -it --name flutter_web \
     -w /app \
+    -v /tmp/build:/app/build/web \
     -v /tmp/cache:/var/cache/pub \
     plugfox/flutter:stable-web \
     /bin/bash -c "set -eux; flutter --version; dart --version; \
     flutter create --org="dev.flutter" --project-name="example" \
     --platforms=web --description="Example" . && \
-    flutter build web --release"
+    flutter pub get && flutter build web --release && \
+    cd build/web && \
+    mv index.html index.src.html && \
+    minify --output index.html index.src.html"
 ```
