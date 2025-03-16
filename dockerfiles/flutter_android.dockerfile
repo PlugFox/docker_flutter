@@ -14,7 +14,7 @@ ARG UBUNTU_VERSION=24.04
 FROM ubuntu:${UBUNTU_VERSION} AS build
 
 USER root
-WORKDIR /
+WORKDIR /app
 
 # Set non-interactive mode for apt-get
 ENV DEBIAN_FRONTEND=noninteractive

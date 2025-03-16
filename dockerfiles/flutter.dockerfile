@@ -28,7 +28,7 @@ ENV FLUTTER_HOME=${FLUTTER_HOME} \
     PATH=$PATH:${FLUTTER_HOME}/bin:${PUB_CACHE}/bin:${FLUTTER_HOME}/bin/cache/dart-sdk/bin
 
 USER root
-WORKDIR /
+WORKDIR /app
 
 # Install only runtime dependencies without extra recommendations and extract the Flutter SDK
 RUN set -eux; \
