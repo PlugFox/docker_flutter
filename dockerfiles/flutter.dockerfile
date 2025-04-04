@@ -53,7 +53,7 @@ RUN set -eux; \
     # Clean up the Flutter SDK by running the git garbage collector
     git gc --aggressive --prune=all && \
     # Remove unnecessary files and directories
-    find . \( -type d \( -name "doc" -o -name "examples" -o -name "dev" \) \) -exec rm -rf {} + && \
+    #find . \( -type d \( -name "doc" -o -name "examples" -o -name "dev" \) \) -exec rm -rf {} + && \
     # Set proper ownership
     mkdir -p ${PUB_CACHE} && \
     chown -R root:root ${FLUTTER_HOME} ${PUB_CACHE} && \
