@@ -97,7 +97,7 @@ RUN set -eux; \
     mkdir -p /usr/share/man/man1 && \
     # Install OpenJDK
     apt-get update && \
-    apt-get install -y --no-install-recommends default-jdk-headless && \
+    apt-get install -y --no-install-recommends openjdk-17-jdk-headless && \
     # Clean up
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/cache/apt/* \
