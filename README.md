@@ -52,7 +52,7 @@ docker build --compress \
 ```bash
 docker run --rm -it --name flutter \
     -w /app \
-    plugfox/flutter:local \
+    plugfox/flutter:local-android \
     /bin/bash
 ```
 
