@@ -27,8 +27,6 @@ Andoid SDK environment variables:
 - ANDROID_SDK_ROOT: `/opt/android`
 - ANDROID_TOOLS_ROOT: `/opt/android`
 - ANDROID_SDK_TOOLS_VERSION: `NNNNNNNN`
-- ANDROID_PLATFORM_VERSION: `XX`
-- ANDROID_BUILD_TOOLS_VERSION: `XX.0.0`
 
 ### How to build locally
 
@@ -42,14 +40,19 @@ docker build --compress \
     --file ./dockerfiles/flutter_web.dockerfile \
     --build-arg VERSION=local \
     --tag plugfox/flutter:local-web .
+
+docker build --compress \
+    --file ./dockerfiles/flutter_android.dockerfile \
+    --build-arg VERSION=local \
+    --tag plugfox/flutter:local-android .
 ```
 
 ### How to get shell
 
 ```bash
-docker run --rm -it --name flutter_web \
+docker run --rm -it --name flutter \
     -w /app \
-    plugfox/flutter:stable-web \
+    plugfox/flutter:local \
     /bin/bash
 ```
 

@@ -60,6 +60,7 @@ RUN set -eux; \
     # Set the Flutter SDK directory permissions
     git config --global --add safe.directory ${FLUTTER_HOME} && \
     # Disable Flutter analytics and CLI animations
+    dart --disable-analytics && \
     flutter config --disable-analytics --no-cli-animations && \
     # Precache the Flutter SDK and run the doctor
     flutter precache --universal && \
